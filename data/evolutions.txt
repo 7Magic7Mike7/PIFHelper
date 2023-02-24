@@ -1,4 +1,5 @@
 # format: "dex number -> comma separated dex numbers of evolution line 1 | dex numbers of evolution line 2 | ..."
+# single stagers are indicated by not having the "->"
 # in general the order is based on dex number, except special lines like Pichu (Pikachu has a lower dex number)
 
 # starters
@@ -21,7 +22,7 @@
 37 -> 38
 
 41 -> 42, 169       # Zubat
-43 -> 44, 45 | 44, 182          Oddish
+43 -> 44, 45 | 44, 182          # Oddish
 46 -> 47
 48 -> 49
 50 -> 51
@@ -40,7 +41,7 @@
 79 -> 80 | 199             # Slowpoke
 81 -> 82, 263              # Magnemite
 
-#83
+83
 
 84 -> 85
 86 -> 87
@@ -61,7 +62,7 @@
 
 114 -> 266                 # Tangela
 
-#115
+115
 
 116 -> 117, 230         # Horsea
 118 -> 119
@@ -69,29 +70,29 @@
 
 123 -> 212                # Scyther
 
-#127
-#128
+127
+128
 
 129 -> 130  # Magikarp
 
-#131    # Lapras
-#132    # Ditto
+131    # Lapras
+132    # Ditto
 
 133 -> 134 | 135 | 136 | 196 | 197 | 271 | 272 | 339   # Eevee
 137 -> 233, 275       # Porygon
 138 -> 139  # Omanyte
 140 -> 141  # Kabuto
 
-#142    # Aerodactyl
+142    # Aerodactyl
 
-#144    # Articuno
-#145    # Zappdos
-#146    # Moltres
+144    # Articuno
+145    # Zappdos
+146    # Moltres
 
 147 -> 148, 149     # Dratini
 
-#150    # Mewto
-#151    # Mew
+150    # Mewto
+151    # Mew
 
 ############################################### Gen 2
 152 -> 153, 154     # Chikorita
@@ -117,48 +118,48 @@
 198 -> 256             # Murkrow
 200 -> 255             # Misdreavus
 
-#201        # Unown
-#203        # Girafarig
+201        # Unown
+203        # Girafarig
 
 204 -> 205      # Pineco
 
-#206        # Dunsparce
+206        # Dunsparce
 207 -> 273     # Gligar
 
 209 -> 210      # Snubbull
 
-#211        # Qwilfish
-#213        # Shuckle
-#214        # Heracross
+211        # Qwilfish
+213        # Shuckle
+214        # Heracross
 
 215 -> 262             # Sneasel
 216 -> 217          # Teddiursa
 218 -> 219          # Slugma
 220 -> 221, 274        # Swinub
 
-#222        # Corsola
+222        # Corsola
 
 223 -> 224          # Remoraid
 
-#225        # Delibird
-#227        # Skarmory
+225        # Delibird
+227        # Skarmory
 
 228 -> 229          # Houndour
 231 -> 232          # Phanpy
 
-#234        # Stantler
-#235        # Smeargle
-#241        # Miltank
+234        # Stantler
+235        # Smeargle
+241        # Miltank
 
-#243        # Raikou
-#244        # Entei
-#245        # Suicune
+243        # Raikou
+244        # Entei
+245        # Suicune
 
 246 -> 247, 248     # Larvitar
 
-#249        # Lugia
-#250        # Ho-Oh
-#251        # Celebi
+249        # Lugia
+250        # Ho-Oh
+251        # Celebi
 
 ############################################### Gen 3
 276 -> 277, 278     # Treecko
@@ -167,16 +168,16 @@
 
 285 -> 286, 287 | 286, 288      # Ralts
 
-#290        # Kecleon
+290        # Kecleon
 
 291 -> 292, 293     # Beldum
 
-#300        # Mawile
+300        # Mawile
 
 301 -> 302      # Liliep
 303 -> 304      # Anorith
 
-#310        # Absol
+310        # Absol
 
 311 -> 312, 313     # Duskull
 325 -> 326          # Nosepass
@@ -193,13 +194,13 @@
 404 -> 355          # Breloom
 405 -> 357          # Banette
 
-#340        # Kyogre
-#341        # Groudon
-#342        # Rayquaza
-#378        # Latias
-#379        # Latios
-#380        # Deoxys
-#381        # Jirachi
+340        # Kyogre
+341        # Groudon
+342        # Rayquaza
+378        # Latias
+379        # Latios
+380        # Deoxys
+381        # Jirachi
 
 ############################################### Gen 4
 
@@ -209,7 +210,7 @@
 
 291 -> 383             # Bidoof
 
-#295        # Spiritomb
+295        # Spiritomb
 297 -> 298, 299     # Gible
 
 384 -> 296      # Riolu
@@ -217,20 +218,20 @@
 305 -> 306      # Cranidos
 307 -> 308      # Shieldon
 
-#315        # Arceus
+315        # Arceus
 
 388 -> 389, 332        # Luxray
 402 -> 353          # Drifloon
 403 -> 354          # Lopunny
 
 
-#343        # Dialga
-#344        # Palkia
-#345        # Giratina
-#346        # Regigigas
-#347        # Darkrai
+343        # Dialga
+344        # Palkia
+345        # Giratina
+346        # Regigigas
+347        # Darkrai
 
-#358        # Rotom
+358        # Rotom
 
 
 ############################################### Gen >4

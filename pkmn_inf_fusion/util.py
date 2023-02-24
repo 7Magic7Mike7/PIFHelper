@@ -1,8 +1,10 @@
 import os.path
-from typing import Union, Optional
+from typing import Union, Optional, Callable
 
 __CUSTOM_BATTLERS_PATH = os.path.join("Graphics", "CustomBattlers")
 __CUSTOM_BATTLERS_INDEXED_PATH = os.path.join(__CUSTOM_BATTLERS_PATH, "indexed")
+
+__COMMENT_CHAR = '#'
 
 
 def custom_battlers_folder(base_path: str) -> str:
@@ -45,6 +47,22 @@ def check_fusion(base_path: str, head: int, body: int, indexed: bool = True) -> 
     file_name = f"{head}.{body}.png"
     full_path = os.path.join(folder_path, file_name)
     return os.path.exists(full_path)
+
+
+def analyze_data_file(file_path: str, analyze_func: Callable[[str], None]):
+    with open(file_path, "rt") as file:
+        line = file.readline()
+        while line is not None and len(line) > 0:
+            line = line[:-1]  # remove trailing newline
+            if len(line) <= 0 or line.startswith(__COMMENT_CHAR) or line.isspace():
+                # ignore these lines
+                pass
+            else:
+                if __COMMENT_CHAR in line:
+                    # remove everything after the comment
+                    line = line[:line.index(__COMMENT_CHAR)]
+                analyze_func(line)
+            line = file.readline()
 
 
 def write_dex_names(gen12_file: str, gen37_file: str, output_file: str):

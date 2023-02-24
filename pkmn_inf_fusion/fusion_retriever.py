@@ -9,18 +9,15 @@ class FusionRetriever:
         if isinstance(dex_names, str):
             self.__names: Dict[int, str] = {}
 
-            with open(dex_names, "rt") as file:
-                line = file.readline()
-                while line is not None and len(line) > 0:
-                    line = line[:-1]  # remove trailing newline
-                    if len(line) > 0 and not line.startswith("#") and not line.isspace():
-                        parts = line.split("=")
-                        id_ = parts[0]
-                        if id_.isdigit():
-                            self.__names[int(id_)] = parts[1]
-                        else:
-                            print(f"ERROR! Invalid id: \"{id_}\"")
-                    line = file.readline()
+            def store_pokemon(line: str):
+                parts = line.split("=")
+                id_ = parts[0]
+                if id_.isdigit():
+                    self.__names[int(id_)] = parts[1]
+                else:
+                    print(f"ERROR! Invalid id: \"{id_}\"")
+            util.analyze_data_file(dex_names, store_pokemon)
+
         else:
             self.__names = dex_names
 
