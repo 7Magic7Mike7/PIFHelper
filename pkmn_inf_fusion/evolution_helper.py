@@ -30,7 +30,7 @@ class EvolutionLine:
     def __init__(self, base_pkmn: Union[int, str], evolutions: Union[List[int], str]):
         if isinstance(base_pkmn, str):
             assert util.is_valid_pkmn(base_pkmn), f"Invalid base Pokemon: {base_pkmn}!"
-            self.__base = int(base_pkmn)
+            base_pkmn = int(base_pkmn)
         if isinstance(evolutions, str):
             evos = []
             for pkmn in _Parser.evo_list(evolutions):
@@ -73,7 +73,7 @@ class EvolutionLine:
 
     def __contains__(self, item):
         if isinstance(item, int):
-            return item == self.__base or item in [self.__evos]
+            return item == self.__base or item in self.__evos
         return False
 
     def __len__(self) -> int:
@@ -101,11 +101,12 @@ class EvolutionHelper:
                     for val in _Parser.line_split(evolution_part)
                 ]
 
-                # store the evolution line for each pokemon in it (still works if evo1 or evo2 are None)
-                evo1, evo2 = evo_lines[0].evo1, evo_lines[0].evo2
-                self.__evolutions[base] = evo_lines
-                self.__evolutions[evo1] = evo_lines
-                self.__evolutions[evo2] = evo_lines
+                for evo_line in evo_lines:
+                    # store the evolution line for each pokemon in it (still works if evo1 or evo2 are None)
+                    evo1, evo2 = evo_line.evo1, evo_line.evo2
+                    self.__evolutions[base] = evo_lines
+                    self.__evolutions[evo1] = evo_lines
+                    self.__evolutions[evo2] = evo_lines
             else:
                 # single stage pokemon
                 assert util.is_valid_pkmn(line), f"Invalid base Pokemon: {line}!"

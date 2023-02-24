@@ -16,8 +16,8 @@
 23 -> 24
 
 27 -> 28
-29 -> 31
-32 -> 34
+29 -> 30, 31
+32 -> 33, 34
 
 37 -> 38
 
@@ -208,7 +208,7 @@
 319 -> 320, 321     # Chimchar
 322 -> 323, 324     # Piplup
 
-291 -> 383             # Bidoof
+294 -> 383             # Bidoof
 
 295        # Spiritomb
 297 -> 298, 299     # Gible
@@ -255,15 +255,15 @@
 417 -> 418, 372        # Fletchling
 419 -> 374          # Volcarona
 
-#370        # Pyukumuku
-#371        # Klefki
-#373        # Mimikyu
-#420        # Stunfisk
+370        # Pyukumuku
+371        # Klefki
+373        # Mimikyu
+420        # Stunfisk
 
-#348        # Genesect
-#349        # Reshiram
-#350        # Zekrom
-#351        # Kyurem
+348        # Genesect
+349        # Reshiram
+350        # Zekrom
+351        # Kyurem
 
 
 
