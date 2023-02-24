@@ -18,7 +18,7 @@ class Helper:
         return self.__retriever
 
     def check_fusion(self, head: int, body: int) -> bool:
-        return fusion_checker.check_fusion(self.__base_path, head, body)
+        return util.check_fusion(self.__base_path, head, body)
 
     def get_head_fusions(self, head: int) -> List[int]:
         return self.__retriever.get_fusions(self.__base_path, head, as_head=True)
