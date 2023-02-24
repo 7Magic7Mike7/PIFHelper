@@ -1,0 +1,169 @@
+252	Azurill	Daycare / Breeding	3
+253	Wynaut	Lavender Town (egg) / Breeding	3
+254	Ambipom	Evolve Aipom	4
+255	Mismagius	Evolve Misdreavus	4
+256	Honchkrow	Evolve Murkrow	4
+257	Bonsly	Daycare / Breeding	4
+258	Mime Jr.	Route 1 (wild) / Daycare / Breeding / Secret Garden	4
+259	Happiny	Daycare / Breeding	4
+260	Munchlax	Route 26 (wild) / Daycare / Breeding	4
+261	Mantyke	Daycare / Breeding	4
+262	Weavile	Evolve Sneasel	4
+263	Magnezone	Evolve Magneton	4
+264	Lickilicky	Evolve Lickitung	4
+265	Rhyperior	Evolve Rhydon	4
+266	Tangrowth	Evolve Tangela	4
+267	Electivire	Evolve Electabuzz	4
+268	Magmortar	Evolve Magmar	4
+269	Togekiss	Evolve Togetic	4
+270	Yanmega	Evolve Yanma	4
+271	Leafeon	Evolve Eevee	4
+272	Glaceon	Evolve Eevee	4
+273	Gliscor	Evolve Gligar	4
+274	Mamoswine	Evolve Piloswine	4
+275	Porygon-Z	Evolve Porygon2	4
+276	Treecko	Pallet Town (trade) (postgame)/Viridian River (static)	3
+277	Grovyle	Evolve Treecko	3
+278	Sceptile	Evolve Grovyle	3
+279	Torchic	Pallet Town (trade) (postgame)/Viridian River (static)	3
+280	Combusken	Evolve Torchic	3
+281	Blaziken	Evolve Combusken	3
+282	Mudkip	Pallet Town (trade) (postgame)/Viridian River (static)	3
+283	Marshtomp	Evolve Mudkip	3
+284	Swampert	Evolve Marshtomp	3
+285	Ralts	Johto daycare (egg) / Secret Garden	3
+286	Kirlia	Evolve Ralts / Route 34 (Pokeradar)	3
+287	Gardevoir	Evolve Kirlia	3
+288	Gallade	Evolve Kirlia	4
+289	Shedinja	Ilex Forest (postgame) / evolve Nincada	3
+290	Kecleon	Saffron City (quest)	3
+291	Beldum	Safari Zone (Area 5) (Pokéradar) / Violet City (postgame)	3
+292	Metang	Evolve Beldum	3
+293	Metagross	Evolve Metang	3
+294	Bidoof	Route 29 (postgame) / Route 22 (Pokeradar)	4
+295	Spiritomb	Route 36 (quest)	4
+296	Lucario	Blackthorn City (quest) (postgame)	4
+297	Gible	Dragon's Den (postgame)	4
+298	Gabite	Evolve Gible	4
+299	Garchomp	Evolve Gabite	4
+300	Mawile	Crimson City Cave	3
+301	Lileep	S.S. Anne (fossil)	3
+302	Cradily	Evolve Lileep	3
+303	Anorith	S.S. Anne (fossil)	3
+304	Armaldo	Evolve Anorith	3
+305	Cranidos	Celadon Cafe (fossil)	4
+306	Rampardos	Evolve Cranidos	4
+307	Shieldon	Celadon Cafe (fossil)	4
+308	Bastiodon	Evolve Shieldon	4
+309	Slaking	Route 46 (postgame)	3
+310	Absol	Cinnabar Island	3
+311	Duskull	Secret Forest (night) / Hidden Tomb, Lavender Town (quest)	3
+312	Dusclops	Evolve Duskull	3
+313	Dusknoir	Evolve Dusclops	4
+314	Wailord	Route 21 (postgame) / Evolve Wailmer	3
+315	Arceus	Hall of Origin (postgame)	4
+316	Turtwig	Knot Island / Boon Island (gift)/Viridian River (static)	4
+317	Grotle	Evolve Turtwig	4
+318	Torterra	Evolve Grotle	4
+319	Chimchar	Knot Island / Boon Island/Viridian River (static)	4
+320	Monferno	Evolve Chimchar	4
+321	Infernape	Evolve Monferno	4
+322	Piplup	Knot Island / Boon Island/Viridian River (static)	4
+323	Prinplup	Evolve Piplup	4
+324	Empoleon	Evolve Prinplup	4
+325	Nosepass	Mt. Moon (Rock Smash)	3
+326	Probopass	Evolve Nosepass	4
+327	Honedge	Rock Tunnel	6
+328	Doublade	Evolve Honedge	6
+329	Aegislash	Evolve Doublade	6
+330	Pawniard	Knot Island (as egg)	5
+331	Bisharp	Evolve Pawniard	5
+332	Luxray	Route 42 (postgame)	4
+333	Aggron	Knot Island	3
+334	Flygon	Kindle Road	3
+335	Milotic	Evolve Feebas	3
+336	Salamence	Knot Island	3
+337	Klinklang	Rocket Warehouse	5
+338	Zoroark	Secret Forest	5
+339	Sylveon	Evolve Eevee	6
+340	Kyogre	Deep Ocean (Sevii Islands)	3
+341	Groudon	Mt. Ember	3
+342	Rayquaza	Sky Pillar	3
+343	Dialga	Sinjoh Ruins (postgame)	4
+344	Palkia	Sinjoh Ruins (postgame)	4
+345	Giratina	Sinjoh Ruins (postgame)	4
+346	Regigigas	Water Labyrinth	4
+347	Darkrai	Ecruteak City	4
+348	Genesect	P2 Laboratory (postgame)	5
+349	Reshiram	Bell Tower (postgame)	5
+350	Zekrom	Bell Tower (postgame)	5
+351	Kyurem	Lake of Rage (postgame)	5
+352	Roserade	Evolve Roselia	4
+353	Drifblim	Evolve Drifloon	4
+354	Lopunny	Evolve Buneary	4
+355	Breloom	Evolve Shroomish	3
+356	Ninjask	Evolve Nincada	3
+357	Banette	Evolve Shuppet	3
+358	Rotom	Celadon City (Postgame)	4
+359	Reuniclus	Evolve Duosion	5
+360	Whimsicott	Evolve Cottonee	5
+361	Krookodile	Evolve Krokorok	5
+362	Cofagrigus	Evolve Yamask	5
+363	Galvantula	Evolve Joltik	5
+364	Ferrothorn	Evolve Ferroseed	5
+365	Litwick	Creepy House	5
+366	Lampent	Creepy House	5
+367	Chandelure	Evolve Lampent	5
+368	Haxorus	Evolve Fraxure	5
+369	Golurk	Evolve Golett	5
+370	Pyukumuku	Treasure Beach (Rain)	7
+371	Klefki	Cycling Road (Pokéradar)	6
+372	Talonflame	Evolve Fletchinder	6
+373	Mimikyu	Creepy House (Static)	7
+374	Volcarona	Evolve Larvesta	5
+375	Deino	Safari Zone (Area 3) (Pokéradar)	5
+376	Zweilous	Evolve Deino	5
+377	Hydreigon	Evolve Zweilous	5
+378	Latias	Roaming (Sevii Islands)	3
+379	Latios	Roaming (Sevii Islands)	3
+380	Deoxys	Birth Island	3
+381	Jirachi	Dream	3
+382	Nincada	Route 4 (Pokéradar)	3
+383	Bibarel	Evolve Bidoof	4
+384	Riolu	Route 23 (Pokéradar)	4
+385	Slakoth	Route 6 (Pokéradar)	3
+386	Vigoroth	Evolve Slakoth	3
+387	Wailmer	Sevii Islands (Surfing)	3
+388	Shinx	Route 8 (Pokéradar)	4
+389	Luxio	Evolve Shinx	4
+390	Aron	Route 9 (Pokéradar)	3
+391	Lairon	Safari Zone (Area 5)	3
+392	Trapinch	Safari Zone (Area 5)	3
+393	Vibrava	Evolve Trapinch / Safari Zone (Area 5)	3
+394	Feebas	Sevii Islands (Fishing in Rain)	3
+395	Bagon	Safari Zone (Area 1) (Pokéradar)	3
+396	Shelgon	Evolve Bagon	3
+397	Klink	Power Plant	5
+398	Klang	Evolve Klink	5
+399	Zorua	Secret Forest	5
+400	Budew	Route 3 (Pokéradar)	4
+401	Roselia	National Park (Pokéradar)	3
+402	Drifloon	Route 7 (Pokéradar)	4
+403	Buneary	Route 24 (Pokéradar)	4
+404	Shroomish	Viridian Forest (Pokéradar)	3
+405	Shuppet	Creepy House	3
+406	Solosis	Route 15 (Pokéradar)	5
+407	Duosion	Evolve Solosis	5
+408	Cottonee	Route 12 (Pokéradar)	5
+409	Sandile	Safari Zone (Area 5)	5
+410	Krokorok	Evolve Sandile	5
+411	Yamask	Safari Zone (Area 5)	5
+412	Joltik	Routes 13-14 (Pokéradar)	5
+413	Ferroseed	Route 18 (Pokéradar)	5
+414	Axew	Safari Zone (Area 2) (Pokéradar)	5
+415	Fraxure	Evolve Axew	5
+416	Golett	Safari Zone (Area 5)	5
+417	Fletchling	Route 1, 2, 22 (Pokeradar)	6
+418	Fletchinder	Evolve Fletchling	6
+419	Larvesta	Safari Zone (Area 5)	5
+420	Stunfisk

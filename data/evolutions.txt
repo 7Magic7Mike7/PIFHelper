@@ -1,0 +1,285 @@
+# format: "dex number -> comma separated dex numbers of evolution line 1 | dex numbers of evolution line 2 | ..."
+# in general the order is based on dex number, except special lines like Pichu (Pikachu has a lower dex number)
+
+# starters
+1 -> 2, 3
+4 -> 5, 6
+7 -> 8, 9
+
+10 -> 11, 12
+13 -> 14, 15
+16 -> 17, 18
+
+19 -> 20
+21 -> 22
+23 -> 24
+
+27 -> 28
+29 -> 31
+32 -> 34
+
+37 -> 38
+
+41 -> 42, 169       # Zubat
+43 -> 44, 45 | 44, 182          Oddish
+46 -> 47
+48 -> 49
+50 -> 51
+52 -> 53
+54 -> 55
+56 -> 57
+58 -> 59
+
+60 -> 61, 62 | 61, 186      # Poliwhirl
+63 -> 64, 65
+66 -> 67, 68
+69 -> 70, 71
+72 -> 73
+74 -> 75, 76
+77 -> 78
+79 -> 80 | 199             # Slowpoke
+81 -> 82, 263              # Magnemite
+
+#83
+
+84 -> 85
+86 -> 87
+88 -> 89
+90 -> 91
+92 -> 93, 94
+95 -> 208       # Onix
+96 -> 97
+98 -> 99
+100 -> 101
+102 -> 103
+104 -> 105
+
+108 -> 264          # Lickitung
+
+109 -> 110
+111 -> 112, 265         # Rhyhorn
+
+114 -> 266                 # Tangela
+
+#115
+
+116 -> 117, 230         # Horsea
+118 -> 119
+120 -> 121
+
+123 -> 212                # Scyther
+
+#127
+#128
+
+129 -> 130  # Magikarp
+
+#131    # Lapras
+#132    # Ditto
+
+133 -> 134 | 135 | 136 | 196 | 197 | 271 | 272 | 339   # Eevee
+137 -> 233, 275       # Porygon
+138 -> 139  # Omanyte
+140 -> 141  # Kabuto
+
+#142    # Aerodactyl
+
+#144    # Articuno
+#145    # Zappdos
+#146    # Moltres
+
+147 -> 148, 149     # Dratini
+
+#150    # Mewto
+#151    # Mew
+
+############################################### Gen 2
+152 -> 153, 154     # Chikorita
+155 -> 156, 157     # Cyndaquil
+158 -> 159, 160     # Totodile
+161 -> 162      # Sentret
+163 -> 164      # Hoothoot
+165 -> 166      # Ledyba
+167 -> 168      # Spinarak
+
+170 -> 171      # Chinchou
+
+175 -> 176, 269     # Togepi
+177 -> 178      # Natu
+179 -> 180, 181     # Mareep
+
+187 -> 188, 189     # Hoppip
+190 -> 254             # Aipom
+191 -> 192          # Sunkern
+193 -> 270             # Yanma
+194 -> 195          # Wooper
+
+198 -> 256             # Murkrow
+200 -> 255             # Misdreavus
+
+#201        # Unown
+#203        # Girafarig
+
+204 -> 205      # Pineco
+
+#206        # Dunsparce
+207 -> 273     # Gligar
+
+209 -> 210      # Snubbull
+
+#211        # Qwilfish
+#213        # Shuckle
+#214        # Heracross
+
+215 -> 262             # Sneasel
+216 -> 217          # Teddiursa
+218 -> 219          # Slugma
+220 -> 221, 274        # Swinub
+
+#222        # Corsola
+
+223 -> 224          # Remoraid
+
+#225        # Delibird
+#227        # Skarmory
+
+228 -> 229          # Houndour
+231 -> 232          # Phanpy
+
+#234        # Stantler
+#235        # Smeargle
+#241        # Miltank
+
+#243        # Raikou
+#244        # Entei
+#245        # Suicune
+
+246 -> 247, 248     # Larvitar
+
+#249        # Lugia
+#250        # Ho-Oh
+#251        # Celebi
+
+############################################### Gen 3
+276 -> 277, 278     # Treecko
+279 -> 280, 281     # Torchic
+282 -> 283, 284     # Mudkip
+
+285 -> 286, 287 | 286, 288      # Ralts
+
+#290        # Kecleon
+
+291 -> 292, 293     # Beldum
+
+#300        # Mawile
+
+301 -> 302      # Liliep
+303 -> 304      # Anorith
+
+#310        # Absol
+
+311 -> 312, 313     # Duskull
+325 -> 326          # Nosepass
+
+
+382 -> 356 | 289        # Nincada
+385 -> 386, 309        # Slakoth
+387 -> 314      # Wailmer
+390 -> 391, 333        # Aron
+392 -> 393, 334        # Trapinch
+394 -> 335          # Febas
+395 -> 396, 336          # Bagon
+400 -> 401, 352   # Budew
+404 -> 355          # Breloom
+405 -> 357          # Banette
+
+#340        # Kyogre
+#341        # Groudon
+#342        # Rayquaza
+#378        # Latias
+#379        # Latios
+#380        # Deoxys
+#381        # Jirachi
+
+############################################### Gen 4
+
+316 -> 317, 318     # Turtwig
+319 -> 320, 321     # Chimchar
+322 -> 323, 324     # Piplup
+
+291 -> 383             # Bidoof
+
+#295        # Spiritomb
+297 -> 298, 299     # Gible
+
+384 -> 296      # Riolu
+
+305 -> 306      # Cranidos
+307 -> 308      # Shieldon
+
+#315        # Arceus
+
+388 -> 389, 332        # Luxray
+402 -> 353          # Drifloon
+403 -> 354          # Lopunny
+
+
+#343        # Dialga
+#344        # Palkia
+#345        # Giratina
+#346        # Regigigas
+#347        # Darkrai
+
+#358        # Rotom
+
+
+############################################### Gen >4
+
+327 -> 328, 329     # Honedge
+330 -> 331          # Pawniard
+365 -> 366, 367     # Litwick
+375 -> 376, 377     # Deino
+
+397 -> 398, 337            # Klink
+399 -> 338              # Zorua
+
+406 -> 407, 359        # Solosis
+408 -> 360        # Whimsicott
+409 -> 410, 361        # Krookodile
+411 -> 362          # Cofagrigus
+412 -> 363          # Galvantula
+413 -> 364          # Ferrothorn
+414 -> 415, 368          # Axew
+416 -> 369          # Golurk
+417 -> 418, 372        # Fletchling
+419 -> 374          # Volcarona
+
+#370        # Pyukumuku
+#371        # Klefki
+#373        # Mimikyu
+#420        # Stunfisk
+
+#348        # Genesect
+#349        # Reshiram
+#350        # Zekrom
+#351        # Kyurem
+
+
+
+#########################################
+172 -> 25, 26       # Pichu
+173 -> 35, 36       # Cleffa
+174 -> 39, 40       # Igglybuff
+236 -> 106 | 107 | 237         # Tyrogue
+238 -> 124      # Smoochum
+239 -> 125, 267              # Elekid
+240 -> 126, 268                # Magby
+252 -> 183, 184     # Azurill
+257 -> 185          # Bonsly
+258 -> 122          # Mime Jr.
+259 -> 113, 242     # Happiny
+260 -> 143          # Snorlax
+261 -> 226          # Mantyke
+
+
+253 -> 202          # Wynaut
