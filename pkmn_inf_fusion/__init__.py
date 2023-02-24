@@ -1,6 +1,7 @@
 from typing import List, Union, Dict
 
 from .fusion_retriever import FusionRetriever
+from .evolution_helper import EvolutionLine, EvolutionHelper
 from . import util
 
 
