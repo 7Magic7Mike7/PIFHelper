@@ -1,12 +1,13 @@
 import os
 from sys import argv
+from typing import List, Tuple, Union
 
 import pkmn_inf_fusion as pif
 
 
 def console_info(base_path: str, helper: pif.Helper, evo_helper: pif.EvolutionHelper):
     #######################################################################
-    pokemon = "Wynaut"
+    pokemon = "Eevee"
     min_rate = 0.4  # how much of the possible fusion evolutions must exist
     head_details_for = None
     body_details_for = head_details_for
@@ -26,51 +27,50 @@ def console_info(base_path: str, helper: pif.Helper, evo_helper: pif.EvolutionHe
     body_fusions.sort()
     body_fusions = evo_helper.dex_nums_to_evo_lines(body_fusions)
 
-    print("########################################")
-    print("################  HEAD  ################")
-    print("########################################")
-    print()
+    def get_headline(info: Union[int, str]) -> str:
+        if isinstance(info, int):
+            return "\n" \
+                "-----------------------------------------\n" \
+                f"Line: {helper.retriever.get_name(info)}\n" \
+                "-----------------------------------------"
+        else:
+            return \
+                "########################################\n" \
+                f"################  {info}  ################\n" \
+                "########################################"
 
-    counter = 0
+    split_index: List[Tuple[int, str]] = []
+    filtered_fusions: List[Tuple[pif.FusedEvoLine, bool]] = []
     for evo_line in evo_lines:
-        for other_line in head_fusions:
-            fused_line = pif.FusedEvoLine(base_path, helper.retriever, evo_line, other_line, unidirectional=True)
-            if fused_line.has_final and fused_line.rate >= min_rate:
-                if head_details_for is None:
-                    print(fused_line.formatted_string(existing=False, missing=False, headline_ids=False))
-                    counter += 1
-                    if counter % 5 == 0:
-                        print()
-                elif head_details_for in other_line:
-                    print(fused_line.formatted_string(missing=False, headline_ids=False))
-                    counter += 1
-                    if counter % 5 == 0:
-                        print()
-        print()
+        split_index.append((len(filtered_fusions), get_headline(evo_line.end_stage)))
 
+        for fusions_data in [(head_fusions, get_headline("HEAD")), (body_fusions, get_headline("BODY"))]:
+            fusions, description = fusions_data
+            split_index.append((len(filtered_fusions), description))
+
+            for other_line in fusions:
+                fused_line = pif.FusedEvoLine(base_path, helper.retriever, evo_line, other_line, unidirectional=False)
+                if fused_line.has_final and fused_line.rate >= min_rate:
+                    if head_details_for is None:
+                        filtered_fusions.append((fused_line, False))
+                    elif head_details_for in other_line:
+                        filtered_fusions.append((fused_line, True))
+
+    cur_split = 0
+    for i, val in enumerate(filtered_fusions):
+        while i == split_index[cur_split][0]:
+            print(split_index[cur_split][1])
+            print()
+            if cur_split + 1 < len(split_index):
+                cur_split += 1
+            else:
+                break
+
+        fused_line, details = val
+        print(fused_line.formatted_string(existing=details, missing=False, headline_ids=False))
+        if i % 5 == 4:
+            print()
     print()
-    print("########################################")
-    print("################  BODY  ################")
-    print("########################################")
-    print()
-
-    counter = 0
-    for evo_line in evo_lines:
-        for other_line in body_fusions:
-            fused_line = pif.FusedEvoLine(base_path, helper.retriever, other_line, evo_line, unidirectional=True)
-            if fused_line.has_final and fused_line.rate >= min_rate:
-                if body_details_for is None:
-                    print(fused_line.formatted_string(existing=False, missing=False, headline_ids=False))
-                    counter += 1
-                    if counter % 5 == 0:
-                        print()
-
-                elif body_details_for in other_line:
-                    print(fused_line.formatted_string(missing=False, headline_ids=False))
-                    counter += 1
-                    if counter % 5 == 0:
-                        print()
-        print()
 
 
 if __name__ == '__main__':
