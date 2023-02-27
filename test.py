@@ -66,6 +66,26 @@ class MyTestCase(unittest.TestCase):
         evo_lines = evo_helper.get_evolution_lines(id_)
         self.assertEqual(len(evo_lines), 1)
 
+    def test_dex2evo_line(self):
+        base_path = MyTestCase.load_default_path()
+        dex_names = os.path.join("data", "dex_names.txt")
+        helper = pif.Helper(base_path, dex_names)
+
+        evo_file = os.path.join("data", "evolutions.txt")
+        evo_helper = pif.EvolutionHelper(evo_file)
+
+        dex_nums = [1, 2, 3, 4, 6]
+        reduced_evo_lines = evo_helper.dex_nums_to_evo_lines(dex_nums)
+        self.assertEqual(len(reduced_evo_lines), 2)
+
+        dex_nums.append(helper.retriever.get_id("Slowking"))
+        reduced_evo_lines = evo_helper.dex_nums_to_evo_lines(dex_nums)
+        self.assertEqual(len(reduced_evo_lines), 3)
+
+        dex_nums.append(helper.retriever.get_id("Slowpoke"))
+        reduced_evo_lines = evo_helper.dex_nums_to_evo_lines(dex_nums)
+        self.assertEqual(len(reduced_evo_lines), 4)
+
 
 if __name__ == '__main__':
     unittest.main()
