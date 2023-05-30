@@ -7,15 +7,16 @@ import pkmn_inf_fusion as pif
 
 def console_info(base_path: str, helper: pif.Helper, evo_helper: pif.EvolutionHelper):
     #######################################################################
-    pokemon = "Eevee"
-    min_rate = 0.4  # how much of the possible fusion evolutions must exist
-    head_details_for = None
-    body_details_for = head_details_for
+    pokemon = "Crobat"
+    min_rate = 0.1  # how much of the possible fusion evolutions must exist
+    details_for = "Weavile"
     #######################################################################
-    if head_details_for is not None and head_details_for != "None":
-        head_details_for = helper.retriever.get_id(head_details_for)
-    if body_details_for is not None and body_details_for != "None":
-        body_details_for = helper.retriever.get_id(body_details_for)
+
+    if details_for is not None:
+        if details_for == "None" or len(details_for) <= 0:
+            details_for = None
+        else:
+            details_for = helper.retriever.get_id(details_for)
 
     dex_num = helper.retriever.get_id(pokemon)
     evo_lines = evo_helper.get_evolution_lines(dex_num)
@@ -51,9 +52,9 @@ def console_info(base_path: str, helper: pif.Helper, evo_helper: pif.EvolutionHe
             for other_line in fusions:
                 fused_line = pif.FusedEvoLine(base_path, helper.retriever, evo_line, other_line, unidirectional=False)
                 if fused_line.has_final and fused_line.rate >= min_rate:
-                    if head_details_for is None:
+                    if details_for is None:
                         filtered_fusions.append((fused_line, False))
-                    elif head_details_for in other_line:
+                    elif details_for in other_line:
                         filtered_fusions.append((fused_line, True))
 
     cur_split = 0
