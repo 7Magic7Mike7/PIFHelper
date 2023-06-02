@@ -1,8 +1,9 @@
 import os
 from sys import argv
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 
 import pkmn_inf_fusion as pif
+from pkmn_inf_fusion import util
 
 
 def console_info(base_path: str, helper: pif.Helper, evo_helper: pif.EvolutionHelper):
@@ -74,10 +75,107 @@ def console_info(base_path: str, helper: pif.Helper, evo_helper: pif.EvolutionHe
     print()
 
 
+def console_info2(base_path: str, helper: pif.Helper, evo_helper: pif.EvolutionHelper, main_mon: Union[str, int],
+                  detail_mon: Optional[Union[str, int]] = None, available_mons: Optional[List[str]] = None,
+                  detail_rate: float = 0.5, check_stagewise: bool = True, check_final: bool = False):
+    # check validity of rate
+    assert 0 <= detail_rate <= 1, f"detail_rate not a ratio: {detail_rate}!"
+
+    # check validity of main_mon
+    if isinstance(main_mon, str):
+        main_mon = helper.retriever.get_id(main_mon)
+    assert util.min_id() <= main_mon <= util.max_id(), f"Invalid id for main_mon: {util.min_id()} <= {main_mon} " \
+                                                       f"<= {util.max_id()} is False!"
+
+    # check validity of detail_mon
+    if detail_mon is not None and isinstance(detail_mon, str):
+        if len(detail_mon) <= 0: detail_mon = None
+        else:
+            temp_name = detail_mon
+            detail_mon = helper.retriever.get_id(detail_mon)
+
+            assert util.min_id() <= detail_mon <= util.max_id(), f"Invalid id for {temp_name}: {util.min_id()} <= " \
+                                                                 f"{detail_mon} <= {util.max_id()} is False!"
+
+    # final is implicitly checked during stagewise check
+    if check_stagewise: check_final = False
+
+    if detail_mon is None:
+        # retrieve all head and body fusions for main_mon
+        head_fusions = helper.retriever.get_fusions(base_path, main_mon, as_head=True, as_names=False)
+        body_fusions = helper.retriever.get_fusions(base_path, main_mon, as_head=False, as_names=False)
+
+        # ignore "duplicates" based on evolution lines (e.g. pikachu/doduo is ignored for raichu/dodrio)
+        head_fusions = evo_helper.dex_nums_to_evo_lines(head_fusions)
+        body_fusions = evo_helper.dex_nums_to_evo_lines(body_fusions)
+
+        # sort (based on dex)
+        head_fusions.sort()
+        body_fusions.sort()
+
+        if available_mons is not None and len(available_mons) > 0:
+            available_ids = []
+            for av_mon in available_mons:
+                av_id = helper.retriever.get_id(av_mon)
+                if av_id != -1: available_ids.append(av_id)
+
+            def availability_filter(evo_lines_: List[pif.EvolutionLine]) -> List[pif.EvolutionLine]:
+                filtered_lines = []
+                for evo_line_ in evo_lines_:
+                    for mon in available_ids:
+                        if mon in evo_line_:
+                            filtered_lines.append(evo_line_)
+                            break
+                return filtered_lines
+            head_fusions = availability_filter(head_fusions)
+            body_fusions = availability_filter(body_fusions)
+
+        main_lines = evo_helper.get_evolution_lines(main_mon)
+        for main_line in main_lines:
+            for data in [(head_fusions, True), (body_fusions, False)]:
+                fusions, as_head = data
+                print("########################################\n"
+                      f"################  {'HEAD' if as_head else 'BODY'}  ################\n"
+                      "########################################")
+                counter = 0
+                for other_line in fusions:
+                    l1 = main_line if as_head else other_line
+                    l2 = other_line if as_head else main_line
+                    fused_line = pif.FusedEvoLine(base_path, helper.retriever, l1, l2, unidirectional=True)
+
+                    # skip if the rate or stagewise- or final-pairing is not fulfilled
+                    if fused_line.rate < detail_rate or \
+                            (check_stagewise and not fused_line.has_stagewise_fusions) or \
+                            (check_final and not fused_line.has_final):
+                        continue
+                    # print our found candidate
+                    print(fused_line.formatted_string(existing=False, missing=False, headline_ids=False,
+                                                      include_rate=True))
+                    counter += 1
+                    if counter % 5 == 0: print()
+                if counter % 5 != 0: print()    # print an empty line if it wasn't already printed in the inner loop
+    else:
+        main_lines = evo_helper.get_evolution_lines(main_mon)
+        detail_lines = evo_helper.get_evolution_lines(detail_mon)
+
+        for mel in main_lines:  # main evolution lines
+            for del_ in detail_lines:  # detail evolution lines
+                fusion_line = pif.FusedEvoLine(base_path, helper.retriever, mel, del_, unidirectional=False)
+                print(fusion_line.formatted_string(existing=True, missing=False, headline_ids=False, include_rate=True))
+
+
 if __name__ == '__main__':
     base_path_ = argv[1]
 
     helper_ = pif.Helper(base_path_, os.path.join("data", "dex_names.txt"))
     evo_helper_ = pif.EvolutionHelper(os.path.join("data", "evolutions.txt"))
 
-    console_info(base_path_, helper_, evo_helper_)
+    #console_info(base_path_, helper_, evo_helper_)
+    main_mon_ = "Charmander"
+    detail_mon_ = ""
+    available_mons_ = [
+        "Feebas", "Zubat", "Geodude", "Bidoof", "Mankey", "Magikarp", "Nidoranm",
+    ]
+    console_info2(base_path_, helper_, evo_helper_, main_mon_, detail_mon_, available_mons_, detail_rate=0.5,
+                  check_stagewise=True,
+                  check_final=False)    # final is implicitly checked in stagewise
