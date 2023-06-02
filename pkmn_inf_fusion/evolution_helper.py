@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Union, Tuple, Set
+from typing import List, Dict, Optional, Union, Tuple, Set, Iterator
 
 from pkmn_inf_fusion import util, FusionRetriever
 
@@ -113,6 +113,22 @@ class EvolutionLine:
     def __eq__(self, other):
         if isinstance(other, EvolutionLine):
             return self.base == other.base and self.evo1 == other.evo1 and self.evo2 == other.evo2
+        return False
+
+    def __lt__(self, other):
+        if isinstance(other, EvolutionLine):
+            if self == other: return False
+
+            if self.base == other.base:
+                # if they share the same base but are not equal, both need to have at least one evolution
+                if self.evo1 == other.evo1:
+                    # if they have the same base and evo1 but are not equal they need to have a different evo2
+                    return self.evo2 < other.evo2
+                else:
+                    return self.evo1 < other.evo1
+            else:
+                return self.base < other.base
+        return False
 
 
 class EvolutionHelper:
@@ -175,6 +191,15 @@ class EvolutionHelper:
 class FusedEvoLine:
     def __init__(self, base_path: str, retriever: FusionRetriever, evo_line1: EvolutionLine, evo_line2: EvolutionLine,
                  unidirectional: bool = False):
+        """
+
+        :param base_path:
+        :param retriever:
+        :param evo_line1:
+        :param evo_line2:
+        :param unidirectional: whether evo_line1 can only be the head and evo_line2 only the body or also the other way
+                                around
+        """
         self.__retriever = retriever
         self.__line1 = evo_line1
         self.__line2 = evo_line2
@@ -206,14 +231,35 @@ class FusedEvoLine:
     def has_final(self) -> bool:
         return (self.__line1.end_stage, self.__line2.end_stage) in self.__existing
 
-    def formatted_string(self, existing: bool = True, missing: bool = True, headline_ids: bool = True) -> str:
-        text = "" #f"Fusions of Evolution lines "
+    @property
+    def has_stagewise_fusions(self) -> bool:
+        # check if both base stages have a custom fusion
+        if not (self.__line1.base, self.__line2.base) in self.__existing:
+            return False
+        # check if there exists a middle stages (only possible if a second evolution exists) for both
+        if self.__line1.evo2 is not None and self.__line2.evo2 is not None:
+            # in that case check if both middle stages have a custom fusion
+            if not (self.__line1.evo1, self.__line2.evo1) in self.__existing:
+                return False
+        # lastly, there needs to be a final fusion (if both lines don't have any evolution this is the same as the
+        # first check)
+        return self.has_final
+
+    @property
+    def existing(self) -> Iterator[Tuple[int, int]]:
+        return iter(self.__existing)
+
+    def formatted_string(self, existing: bool = True, missing: bool = True, headline_ids: bool = True,
+                         include_rate: bool = False) -> str:
+        text = ""
         if headline_ids:
             text += f"#{self.__line1.end_stage} & " \
                     f"#{self.__line2.end_stage}"
         else:
             text += f"{self.__retriever.get_name(self.__line1.end_stage)} & " \
                     f"{self.__retriever.get_name(self.__line2.end_stage)}"
+
+        if include_rate: text += f"\t [{100 * self.rate:.0f}%]"
 
         if existing and len(self.__existing) > 0:
             text += "\n\tExisting:\n"
