@@ -101,3 +101,17 @@ def write_dex_names(gen12_file: str, gen37_file: str, output_file: str):
     # write the result
     with open(output_file, "wt") as file:
         file.write("\n".join(names))
+
+
+def correct_file_ending(base_path: str):
+    folder_path = custom_battlers_folder(base_path)
+    ending_to_replace = "PNG"
+    new_ending = "png"
+
+    for file in os.listdir(folder_path):
+        if file.endswith(ending_to_replace):
+            file_name = file[:-len(ending_to_replace)]
+
+            old_file = os.path.join(folder_path, file)
+            new_file = os.path.join(folder_path, f"{file_name}{new_ending}")
+            os.rename(old_file, new_file)
