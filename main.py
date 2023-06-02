@@ -179,3 +179,5 @@ if __name__ == '__main__':
     console_info2(base_path_, helper_, evo_helper_, main_mon_, detail_mon_, available_mons_, detail_rate=0.5,
                   check_stagewise=True,
                   check_final=False)    # final is implicitly checked in stagewise
+    gui = pif.GUI(base_path_, helper_.retriever, evo_helper_)
+    gui.start()
