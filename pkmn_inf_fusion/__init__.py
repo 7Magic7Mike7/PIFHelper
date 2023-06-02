@@ -1,3 +1,5 @@
+import os
+import shutil
 from typing import List, Union, Dict
 
 from .fusion_retriever import FusionRetriever
@@ -26,3 +28,19 @@ class Helper:
 
     def get_body_fusions(self, body: int) -> List[int]:
         return self.__retriever.get_fusions(self.__base_path, body, as_head=False)
+
+    def refresh_image_dex(self, destination: str):
+        battlers_path = os.path.join(self.__base_path, "Graphics", "Battlers")
+        for i in range(util.min_id(), util.max_id()):
+            src = os.path.join(battlers_path, str(i), f"{i}.{i}.png")
+            dst = os.path.join(destination, f"{i}.png")
+            shutil.copyfile(src, dst)
+
+    def refresh_evo_line_dex(self, evo_helper: EvolutionHelper, destination: str):
+        battlers_path = os.path.join(self.__base_path, "Graphics", "Battlers")
+        ids = evo_helper.dex_nums_to_evo_lines(list(range(util.min_id(), util.max_id())))
+        for i in ids:
+            i = i.end_stage
+            src = os.path.join(battlers_path, str(i), f"{i}.{i}.png")
+            dst = os.path.join(destination, f"{i}.png")
+            shutil.copyfile(src, dst)
