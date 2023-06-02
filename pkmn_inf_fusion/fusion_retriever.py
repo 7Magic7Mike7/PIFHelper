@@ -51,6 +51,9 @@ class FusionRetriever:
         else:
             return f"ERROR: {pkmn}"
 
+    def get_all_names(self) -> List[str]:
+        return list(self.__names.values())
+
     def get_id(self, name: str) -> int:
         for val in self.__names:
             if self.__names[val].lower() == name.lower():
