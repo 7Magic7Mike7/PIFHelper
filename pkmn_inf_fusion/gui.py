@@ -83,16 +83,16 @@ class GUI:
         body_fusions = self.__evo_helper.dex_nums_to_evo_lines(body_fusions)
 
         for evo_line in new_evo_lines:
-            for data in self.get_fusion_tree_data(evo_line, head_fusions, are_head_fusions=True):
+            for data in self._get_fusion_tree_data(evo_line, head_fusions, min_rate=min_rate, are_head_fusions=True):
                 parent_id, item_id, text = data
                 self.__tree_head_fusions.insert(parent_id, "end", item_id, text=text)
 
-            for data in self.get_fusion_tree_data(evo_line, body_fusions, are_head_fusions=False):
+            for data in self._get_fusion_tree_data(evo_line, body_fusions, min_rate=min_rate, are_head_fusions=False):
                 parent_id, item_id, text = data
                 self.__tree_body_fusions.insert(parent_id, "end", item_id, text=text)
 
-    def get_fusion_tree_data(self, main_line: EvolutionLine, fusion_list: List[EvolutionLine], are_head_fusions: bool,
-                             sort_mode: int = __SM_RATE) -> List[Tuple[str, str, str]]:
+    def _get_fusion_tree_data(self, main_line: EvolutionLine, fusion_list: List[EvolutionLine], min_rate: float,
+                              are_head_fusions: bool, sort_mode: int = __SM_RATE) -> List[Tuple[str, str, str]]:
         # we need to store three levels: main pokemon,
         tree_data: List[List[Tuple[str, str, str, int, float]]] = [[], [], [],]
         elid = main_line.end_stage
@@ -104,6 +104,10 @@ class GUI:
             l1 = main_line if are_head_fusions else other_line
             l2 = other_line if are_head_fusions else main_line
             fusion_line = FusedEvoLine(self.__base_path, self.__retriever, l1, l2, unidirectional=True)
+
+            # continue with next value if fusion_line doesn't have enough coverage
+            if fusion_line.rate < min_rate: continue
+
             tree_data[1].append((f"{elid}", f"{fid}", f"{self.__retriever.get_name(other_line.end_stage)} "
                                                       f"[{100 * fusion_line.rate:.0f}%]",
                                  other_line.end_stage, fusion_line.rate))
