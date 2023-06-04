@@ -57,9 +57,6 @@ class GUI:
         self.__tree_body_fusions = ttk.Treeview(frm, columns=("fusions"))
         self.__tree_body_fusions.grid(column=3, row=2)
 
-        self.__frame = ttk.LabelFrame(frm)
-        self.__frame.grid(column=0, row=row)
-
         self.__e_main_mon.insert(0, "Charmander")
 
     def _filter_by_availability(self, evolution_lines: List[EvolutionLine]) -> List[EvolutionLine]:
@@ -79,12 +76,6 @@ class GUI:
         assert self.__retriever.get_id(self.__e_main_mon.get()) >= 0, f"Entry not valid: {self.__e_main_mon.get()}!"
         min_rate = float(self.__e_rate.get())
         assert 0 <= min_rate <= 1.0, f"Invalid rate: {min_rate}!"
-
-        # remove old widgets
-        widgets_to_destroy = []
-        for widget in self.__frame.children.values(): widgets_to_destroy.append(widget)
-        for widget in widgets_to_destroy: widget.after(10, widget.destroy())
-        print("cleaned widget")
 
         dex_num = self.__retriever.get_id(self.__e_main_mon.get())
         evo_lines = self.__evo_helper.get_evolution_lines(dex_num)
