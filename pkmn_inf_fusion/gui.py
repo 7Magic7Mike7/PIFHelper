@@ -19,12 +19,10 @@ class GUI:
         self.__pokemon_list = retriever.get_all_names()
         self.__analyzed_mons: Set[int] = set()
 
+        self.__root.title("Pokemon Infinite Fusion - Fusion Checker")
         row = 0
         frm = ttk.Frame(self.__root, width=200, height=200, padding=10)
         frm.grid()
-
-        ttk.Label(frm, text="Pokemon Infinite Fusion - Fusion Checker").grid(column=0, row=row)
-        row += 1
 
         radio_command = None
         RB_NAME, RB_DEX = 1, 2
