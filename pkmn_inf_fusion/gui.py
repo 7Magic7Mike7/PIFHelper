@@ -43,11 +43,7 @@ class GUI:
         row += 1
 
         ttk.Button(frm, text="Analyse", command=self.__analyse, width=30).grid(column=0, row=row, columnspan=2)
-        row += 1
-
-        self.__details = StringVar()
-        ttk.Label(frm, textvariable=self.__details).grid(column=0, row=row)
-        row += 1
+        ttk.Button(frm, text="Reset", command=self.__reset, width=30).grid(column=2, row=row)
 
         ttk.Label(frm, text="Head Fusions: ").grid(column=2, row=1)
         self.__tree_head_fusions = ttk.Treeview(frm, columns=("fusions"))
@@ -58,6 +54,12 @@ class GUI:
         self.__tree_body_fusions.grid(column=3, row=2)
 
         self.__e_main_mon.insert(0, "Charmander")
+
+    def __reset(self):
+        for id_ in self.__analyzed_mons:
+            self.__tree_head_fusions.delete(f"{id_}")
+            self.__tree_body_fusions.delete(f"{id_}")
+        self.__analyzed_mons.clear()
 
     def _filter_by_availability(self, evolution_lines: List[EvolutionLine]) -> List[EvolutionLine]:
         available_ids = []
