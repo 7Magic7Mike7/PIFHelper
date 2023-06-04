@@ -55,7 +55,8 @@ class FusionRetriever:
         return list(self.__names.values())
 
     def get_id(self, name: str) -> int:
+        name = name.lstrip(" ").rstrip(" ").lower()     # normalize input
         for val in self.__names:
-            if self.__names[val].lower() == name.lower():
+            if self.__names[val].lower() == name:
                 return val
         return -1
