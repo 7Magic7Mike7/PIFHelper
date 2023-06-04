@@ -24,23 +24,6 @@ class GUI:
         frm = ttk.Frame(self.__root, width=200, height=200, padding=10)
         frm.grid()
 
-        radio_command = None
-        RB_NAME, RB_DEX = 1, 2
-        radio_val = IntVar(master=frm, value=RB_NAME)
-        rb_name = ttk.Radiobutton(frm, variable=radio_val, value=RB_NAME, text="by name", command=radio_command)
-        rb_dex = ttk.Radiobutton(frm, variable=radio_val, value=RB_DEX, text="by Dex", command=radio_command)
-        rb_name.grid(column=0, row=row)
-        rb_dex.grid(column=1, row=row)
-        row += 1
-
-        def define_oder():
-            if radio_val.get() == RB_NAME:
-                self.__pokemon_list.sort()
-            else:
-                self.__pokemon_list = retriever.get_all_names()
-        radio_command = define_oder
-        radio_command()
-
         ttk.Label(frm, text="Main Pokemon: ").grid(column=0, row=row)
         self.__e_main_mon = ttk.Combobox(frm, values=self.__pokemon_list)
         self.__e_main_mon.grid(column=1, row=row, columnspan=1)
@@ -69,10 +52,6 @@ class GUI:
         self.__frame = ttk.LabelFrame(frm)
         self.__frame.grid(column=0, row=row)
 
-        ttk.Button(frm, text="Reset", command=self.__reset).grid(column=1, row=0)
-        # ttk.Button(frm, text="Quit", command=root.destroy).grid(column=1, row=0)
-
-        self.__reset()
         self.__e_main_mon.insert(0, "Charmander")
 
     def __analyse(self):
@@ -144,19 +123,6 @@ class GUI:
         aaaa = tree_data[0] + tree_data[1] + tree_data[2]
 
         return [(t[0], t[1], t[2]) for t in aaaa]
-
-    def __reset(self):
-        # e_rate.pack()
-        self.__e_rate.delete(0, len(self.__e_rate.get()))
-        self.__e_rate.insert(0, f"{GUI.__DEFAULT_RATE}")
-
-        items2delete = []
-        #for item in self.__tree_head_fusions.grid:
-        #    items2delete.append(item)
-        for item in items2delete: self.__tree_head_fusions.delete(item)
-
-        self.__tree_head_fusions.delete()
-        #self.__e_detail_mon.delete(0, len(self.__e_detail_mon.get()))
 
     def start(self):
         self.__root.mainloop()
