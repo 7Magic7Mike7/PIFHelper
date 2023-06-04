@@ -30,24 +30,25 @@ class GUI:
         row += 1
 
         ttk.Label(frm, text="Min rate: ").grid(column=0, row=row)
-        self.__e_rate = ttk.Entry(frm)
+        self.__e_rate = ttk.Entry(frm, width=5)
         self.__e_rate.grid(column=1, row=row)
+        self.__e_rate.insert(0, f"{GUI.__DEFAULT_RATE}")
         row += 1
 
-        ttk.Button(frm, text="Analyse", command=self.__analyse).grid(column=0, row=row)
+        ttk.Button(frm, text="Analyse", command=self.__analyse, width=30).grid(column=0, row=row, columnspan=2)
         row += 1
 
         self.__details = StringVar()
         ttk.Label(frm, textvariable=self.__details).grid(column=0, row=row)
         row += 1
 
-        ttk.Label(frm, text="Head Fusions: ").grid(column=2, row=0)
+        ttk.Label(frm, text="Head Fusions: ").grid(column=2, row=1)
         self.__tree_head_fusions = ttk.Treeview(frm, columns=("fusions"))
-        self.__tree_head_fusions.grid(column=2, row=1)
+        self.__tree_head_fusions.grid(column=2, row=2)
 
-        ttk.Label(frm, text="Body Fusions: ").grid(column=3, row=0)
+        ttk.Label(frm, text="Body Fusions: ").grid(column=3, row=1)
         self.__tree_body_fusions = ttk.Treeview(frm, columns=("fusions"))
-        self.__tree_body_fusions.grid(column=3, row=1)
+        self.__tree_body_fusions.grid(column=3, row=2)
 
         self.__frame = ttk.LabelFrame(frm)
         self.__frame.grid(column=0, row=row)
