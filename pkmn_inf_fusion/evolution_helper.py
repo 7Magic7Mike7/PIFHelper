@@ -132,6 +132,22 @@ class EvolutionLine:
 
 
 class EvolutionHelper:
+    @staticmethod
+    def availability_filter(evolution_lines: List[EvolutionLine], available_ids: List[int]) -> List[EvolutionLine]:
+        """
+
+        :param evolution_lines: the list of evolution lines we want to filter
+        :param available_ids: ids/dex num of the available pokemon
+        :return: a filtered version of evolution_lines
+        """
+        filtered_lines = []
+        for evo_line_ in evolution_lines:
+            for mon in available_ids:
+                if mon in evo_line_:
+                    filtered_lines.append(evo_line_)
+                    break
+        return filtered_lines
+
     def __init__(self, evolutions_file: str):
         self.__evolutions: Dict[Optional[int], List[EvolutionLine]] = {}
 

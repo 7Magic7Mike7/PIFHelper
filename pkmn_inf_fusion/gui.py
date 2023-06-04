@@ -1,4 +1,4 @@
-
+import tkinter
 from tkinter import ttk, Tk, IntVar, StringVar
 from typing import List, Tuple, Set
 
@@ -6,6 +6,7 @@ from pkmn_inf_fusion import EvolutionHelper, FusionRetriever, EvolutionLine, Fus
 
 
 class GUI:
+    __MON_SPLITER = ";"
     __DEFAULT_RATE = 0.5
     __SM_NAME = 0
     __SM_RATE = 1
@@ -27,6 +28,12 @@ class GUI:
         ttk.Label(frm, text="Main Pokemon: ").grid(column=0, row=row)
         self.__e_main_mon = ttk.Combobox(frm, values=self.__pokemon_list)
         self.__e_main_mon.grid(column=1, row=row, columnspan=1)
+        row += 1
+
+        ttk.Label(frm, text="Available Pokemon: ").grid(column=0, row=row)
+        row += 1
+        self.__available_mons = tkinter.Text(frm, width=20, height=15)
+        self.__available_mons.grid(column=0, row=row, columnspan=2)
         row += 1
 
         ttk.Label(frm, text="Min rate: ").grid(column=0, row=row)
@@ -55,6 +62,18 @@ class GUI:
 
         self.__e_main_mon.insert(0, "Charmander")
 
+    def _filter_by_availability(self, evolution_lines: List[EvolutionLine]) -> List[EvolutionLine]:
+        available_ids = []
+        # go through every line in our text area for available pokemon
+        for line in self.__available_mons.get("1.0", "end").split("\n"):
+            # there can be multiple pokemon per line
+            for mon in line.split(GUI.__MON_SPLITER):
+                id_ = self.__retriever.get_id(mon)
+                if id_ != -1: available_ids.append(id_)
+
+        if len(available_ids) <= 0: return evolution_lines  # don't filter if we would get an empty result
+        return EvolutionHelper.availability_filter(evolution_lines, available_ids)
+
     def __analyse(self):
         # validate user input
         assert self.__retriever.get_id(self.__e_main_mon.get()) >= 0, f"Entry not valid: {self.__e_main_mon.get()}!"
@@ -78,9 +97,11 @@ class GUI:
 
         head_fusions = self.__retriever.get_fusions(self.__base_path, dex_num, as_head=True, as_names=False)
         head_fusions = self.__evo_helper.dex_nums_to_evo_lines(head_fusions)
+        head_fusions = self._filter_by_availability(head_fusions)
 
         body_fusions = self.__retriever.get_fusions(self.__base_path, dex_num, as_head=False, as_names=False)
         body_fusions = self.__evo_helper.dex_nums_to_evo_lines(body_fusions)
+        body_fusions = self._filter_by_availability(body_fusions)
 
         for evo_line in new_evo_lines:
             for data in self._get_fusion_tree_data(evo_line, head_fusions, min_rate=min_rate, are_head_fusions=True):

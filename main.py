@@ -118,17 +118,8 @@ def console_info2(base_path: str, helper: pif.Helper, evo_helper: pif.EvolutionH
             for av_mon in available_mons:
                 av_id = helper.retriever.get_id(av_mon)
                 if av_id != -1: available_ids.append(av_id)
-
-            def availability_filter(evo_lines_: List[pif.EvolutionLine]) -> List[pif.EvolutionLine]:
-                filtered_lines = []
-                for evo_line_ in evo_lines_:
-                    for mon in available_ids:
-                        if mon in evo_line_:
-                            filtered_lines.append(evo_line_)
-                            break
-                return filtered_lines
-            head_fusions = availability_filter(head_fusions)
-            body_fusions = availability_filter(body_fusions)
+            head_fusions = pif.EvolutionHelper.availability_filter(head_fusions, available_ids)
+            body_fusions = pif.EvolutionHelper.availability_filter(body_fusions, available_ids)
 
         main_lines = evo_helper.get_evolution_lines(main_mon)
         for main_line in main_lines:
