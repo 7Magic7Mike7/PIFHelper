@@ -96,6 +96,7 @@ class GUI:
         for el in evo_lines:    # filter out every pokemon we already analyzed
             if el.end_stage not in self.__analyzed_mons:
                 new_evo_lines.append(el)
+                self.__analyzed_mons.add(el.end_stage)
 
         head_fusions = self.__retriever.get_fusions(self.__base_path, dex_num, as_head=True, as_names=False)
         head_fusions = self.__evo_helper.dex_nums_to_evo_lines(head_fusions)
