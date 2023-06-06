@@ -1,6 +1,6 @@
 import tkinter
 from tkinter import ttk, Tk, IntVar, StringVar
-from typing import List, Tuple, Set
+from typing import List, Tuple, Set, Optional
 
 from pkmn_inf_fusion import EvolutionHelper, FusionRetriever, EvolutionLine, FusedEvoLine, util
 
@@ -12,7 +12,8 @@ class GUI:
     __SM_RATE = 1
     __SM_DEX = 2
 
-    def __init__(self, base_path: str, retriever: FusionRetriever, evo_helper: EvolutionHelper):
+    def __init__(self, base_path: str, retriever: FusionRetriever, evo_helper: EvolutionHelper,
+                 main_mon: Optional[str] = None, available_mons: Optional[List[str]] = None):
         self.__base_path = base_path
         self.__retriever = retriever
         self.__evo_helper = evo_helper
@@ -53,7 +54,10 @@ class GUI:
         self.__tree_body_fusions = ttk.Treeview(frm, columns=("fusions"))
         self.__tree_body_fusions.grid(column=3, row=2)
 
-        self.__e_main_mon.insert(0, "Charmander")
+        if main_mon is not None:
+            self.__e_main_mon.insert(0, main_mon)
+        if available_mons is not None:
+            self.__available_mons.insert("end", f"{GUI.__MON_SPLITER} ".join(available_mons) + "\n")
 
     def __reset(self):
         for id_ in self.__analyzed_mons:
