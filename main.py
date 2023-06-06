@@ -156,19 +156,23 @@ def console_info2(base_path: str, helper: pif.Helper, evo_helper: pif.EvolutionH
 
 
 if __name__ == '__main__':
+    USE_GUI = True
     base_path_ = argv[1]
 
     helper_ = pif.Helper(base_path_, os.path.join("data", "dex_names.txt"))
     evo_helper_ = pif.EvolutionHelper(os.path.join("data", "evolutions.txt"))
 
-    #console_info(base_path_, helper_, evo_helper_)
     main_mon_ = "Charmander"
-    detail_mon_ = ""
     available_mons_ = [
         "Feebas", "Zubat", "Geodude", "Bidoof", "Mankey", "Magikarp", "Nidoranm",
     ]
-    console_info2(base_path_, helper_, evo_helper_, main_mon_, detail_mon_, available_mons_, detail_rate=0.5,
-                  check_stagewise=True,
-                  check_final=False)    # final is implicitly checked in stagewise
-    gui = pif.GUI(base_path_, helper_.retriever, evo_helper_)
-    gui.start()
+
+    if USE_GUI:
+        gui = pif.GUI(base_path_, helper_.retriever, evo_helper_, main_mon_, available_mons_)
+        gui.start()
+    else:
+        detail_mon_ = ""
+        # console_info(base_path_, helper_, evo_helper_)
+        console_info2(base_path_, helper_, evo_helper_, main_mon_, detail_mon_, available_mons_, detail_rate=0.5,
+                      check_stagewise=True,
+                      check_final=False)    # final is implicitly checked in stagewise
