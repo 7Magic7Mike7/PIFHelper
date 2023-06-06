@@ -114,7 +114,8 @@ class GUI:
         # we need to store three levels: main pokemon,
         tree_data: List[List[Tuple[str, str, str, int, float]]] = [[], [], [],]
         elid = main_line.end_stage
-        tree_data[0].append(("", f"{elid}", f"{self.__retriever.get_name(main_line.end_stage)}", elid, 1))
+        tree_data[0].append(("", f"{elid}", f"{self.__retriever.get_name(main_line.end_stage)} #{main_line.end_stage}",
+                             elid, 1))
         # head fusions use the head from evo_line and the bodies from head_fusions (fusions with main mon as head)
         for other_line in fusion_list:
             fid = elid * util.max_id() + other_line.end_stage
@@ -127,7 +128,7 @@ class GUI:
             if fusion_line.rate < min_rate: continue
 
             tree_data[1].append((f"{elid}", f"{fid}", f"{self.__retriever.get_name(other_line.end_stage)} "
-                                                      f"[{100 * fusion_line.rate:.0f}%]",
+                                                      f"#{other_line.end_stage}\t[{100 * fusion_line.rate:.0f}%]",
                                  other_line.end_stage, fusion_line.rate))
 
             for i, fusion in enumerate(fusion_line.existing):
