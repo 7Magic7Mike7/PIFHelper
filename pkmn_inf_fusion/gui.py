@@ -136,7 +136,9 @@ class GUI:
         if sort_mode == GUI.__SM_NAME:
             for td in tree_data: td.sort(key=lambda a: a[2])
         elif sort_mode == GUI.__SM_RATE:
-            for td in tree_data: td.sort(key=lambda a: a[4], reverse=True)
+            # tuples can be sorted automatically, so we use the rate first (negate to reverse the order) and on equal
+            # rates we sort by name
+            for td in tree_data: td.sort(key=lambda a: (-a[4], a[2]))
         else:   # sort by dex
             for td in tree_data: td.sort(key=lambda a: a[3])
         aaaa = tree_data[0] + tree_data[1] + tree_data[2]
