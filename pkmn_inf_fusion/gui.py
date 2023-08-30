@@ -83,6 +83,8 @@ class GUI:
         min_rate = float(self.__e_rate.get())
         assert 0 <= min_rate <= 1.0, f"Invalid rate: {min_rate}!"
 
+        self.__reset()      # remove old data before we analyse
+
         dex_num = self.__retriever.get_id(self.__e_main_mon.get())
         evo_lines = self.__evo_helper.get_evolution_lines(dex_num)
 
