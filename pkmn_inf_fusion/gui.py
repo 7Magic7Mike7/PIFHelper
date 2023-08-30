@@ -151,9 +151,8 @@ class GUI:
             for td in tree_data: td.sort(key=lambda a: (-a[4], a[2]))
         else:   # sort by dex
             for td in tree_data: td.sort(key=lambda a: a[3])
-        aaaa = tree_data[0] + tree_data[1] + tree_data[2]
 
-        return [(t[0], t[1], t[2]) for t in aaaa]
+        return [(t[0], t[1], t[2]) for t in tree_data[0] + tree_data[1] + tree_data[2]]
 
     def start(self):
         self.__root.mainloop()
