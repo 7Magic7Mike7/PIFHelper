@@ -10,6 +10,21 @@ class GUI:
         def __init__(self):
             self.__vars: Dict[str, Tuple[DoubleVar, StringVar, ttk.Label, ttk.Entry, ttk.Scale]] = {}
 
+        def _set_text(self, stat: str):
+            assert stat in self.__vars, f"Variable={stat} not stored in this filter!"
+
+            double_var, string_var, _, _, _ = self.__vars[stat]
+            if string_var is not None and double_var is not None:
+                string_var.set(f"{double_var.get():.0f}")
+
+        def _set_scale(self, stat: str):
+            assert stat in self.__vars, f"Variable={stat} not stored in this filter!"
+
+            double_var, string_var, _, _, scale = self.__vars[stat]
+            if string_var is not None and double_var is not None:
+                val = float(string_var.get())
+                double_var.set(val)     # todo check if val is valid/in range?
+
         def add_filter(self, master, name: str, from_: float, to_: float, label: Optional[str] = None,
                        col: Optional[int] = None, row: Optional[int] = None) -> Tuple[ttk.Label, ttk.Entry, ttk.Scale]:
             assert name not in self.__vars, f"Name={name} already used!"
@@ -39,21 +54,6 @@ class GUI:
 
             self.__vars[name] = double_var, string_var, label_, entry, scale
             return label_, entry, scale
-
-        def _set_text(self, stat: str):
-            assert stat in self.__vars, f"Variable={stat} not stored in this filter!"
-
-            double_var, string_var, _, _, _ = self.__vars[stat]
-            if string_var is not None and double_var is not None:
-                string_var.set(f"{double_var.get():.0f}")
-
-        def _set_scale(self, stat: str):
-            assert stat in self.__vars, f"Variable={stat} not stored in this filter!"
-
-            double_var, string_var, _, _, scale = self.__vars[stat]
-            if string_var is not None and double_var is not None:
-                val = float(string_var.get())
-                double_var.set(val)     # todo check if val is valid/in range?
 
     __MON_SPLITER = ";"
     __DEFAULT_RATE = 50
