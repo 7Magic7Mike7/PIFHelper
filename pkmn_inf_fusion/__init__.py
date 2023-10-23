@@ -3,7 +3,7 @@ import os
 import shutil
 from typing import List, Union, Dict, Any, Optional
 
-from .pokemon import Pokemon
+from .pokemon import Pokemon, FusedMon
 from .fusion_retriever import FusionRetriever, DynamicFusionRetriever, StaticFusionRetriever
 from .evolution_helper import EvolutionLine, EvolutionHelper, FusedEvoLine
 from .gui import GUI

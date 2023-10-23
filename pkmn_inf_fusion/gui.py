@@ -2,7 +2,7 @@ import tkinter
 from tkinter import ttk, Tk, IntVar, StringVar, DoubleVar
 from typing import List, Tuple, Set, Optional, Dict
 
-from pkmn_inf_fusion import EvolutionHelper, FusionRetriever, EvolutionLine, FusedEvoLine, util, Pokemon
+from pkmn_inf_fusion import EvolutionHelper, FusionRetriever, EvolutionLine, FusedEvoLine, util, Pokemon, FusedMon
 
 
 class GUI:
@@ -168,7 +168,22 @@ class GUI:
         # Fusion details section
         row = 2
         ttk.Label(frm, text="Selected Fusion Data: ").grid(column=6, row=row)
+        self.__details: Dict[str, StringVar] = {}
 
+        def add_detail(name: str, text: str, detail_row: int):
+            detail_var = StringVar(value="?")
+            ttk.Label(frm, text=text).grid(column=6, row=detail_row)
+            ttk.Label(frm, textvariable=detail_var).grid(column=7, row=detail_row)
+            self.__details[name] = detail_var
+        add_detail("bst", "BST:   ", row+1)
+        add_detail("hp", "HP:    ", row+2)
+        add_detail("atk", "ATK:   ", row+3)
+        add_detail("spatk", "SPATK: ", row+4)
+        add_detail("def", "DEF:   ", row+5)
+        add_detail("spdef", "SPDEF: ", row+6)
+        add_detail("spd", "SPEED: ", row+7)
+
+        self.__tree_fusions.bind("<<TreeviewSelect>>", self.__set_details)
 
         # buttons at the bottom
         row = 16
@@ -180,6 +195,42 @@ class GUI:
             self.__e_main_mon.insert(0, main_mon)
         if available_mons is not None:
             self.__available_mons.insert("end", f"{GUI.__MON_SPLITER} ".join(available_mons) + "\n")
+
+    def __set_details(self, event):
+        encoded_id = self.__tree_fusions.focus()
+        pokemon = None
+        try:
+            if "_" in encoded_id:
+                # we selected a concrete fusion
+                data = encoded_id.split("_")[1]  # first part is evolution line, second part is concrete
+                data = data.split("-")
+                head_id = int(data[0])
+                body_id = int(data[1])
+                pokemon = FusedMon(self.__retriever.get_pokemon(head_id), self.__retriever.get_pokemon(body_id))
+            elif "-" in encoded_id:
+                # we selected a fusion line -> showcase base mon since the concrete fusion can be seen by expanding
+                # skip prefix ("h" or "b") indicating for this case irrelevant fusion position
+                data = encoded_id[1:].split("-")  # split ids separated by "-"
+                mon_id = int(data[1])
+                pokemon = self.__retriever.get_pokemon(mon_id)
+            elif encoded_id in ["head", "body"]:
+                pass  # nothing to do
+            else:
+                # we selected a single pokemon
+                # skip prefix ("h" or "b") indicating for this case irrelevant fusion position
+                mon_id = int(encoded_id[1:])
+                pokemon = self.__retriever.get_pokemon(mon_id)
+        except:
+            print(f"Selection error for id: {encoded_id}")
+
+        if pokemon is not None:
+            self.__details["bst"].set(str(pokemon.bst))
+            self.__details["hp"].set(str(pokemon.hp))
+            self.__details["atk"].set(str(pokemon.atk))
+            self.__details["spatk"].set(str(pokemon.spatk))
+            self.__details["def"].set(str(pokemon.def_))
+            self.__details["spdef"].set(str(pokemon.spdef))
+            self.__details["spd"].set(str(pokemon.speed))
 
     def __reset(self):
         if len(self.__analyzed_mons) > 0:
@@ -250,7 +301,7 @@ class GUI:
 
         # head fusions use the head from evo_line and the bodies from head_fusions (fusions with main mon as head)
         for other_line in fusion_list:
-            fid = elid * util.max_id() + other_line.end_stage  # fusion id
+            fid = f"{elid}-{other_line.end_stage}"  # elid * util.max_id() + other_line.end_stage  # fusion id
 
             l1 = main_line if are_head_fusions else other_line
             l2 = other_line if are_head_fusions else main_line
@@ -267,9 +318,10 @@ class GUI:
             for i, fusion in enumerate(fusion_line.existing):
                 head_mon, body_mon = fusion
                 dex_num = body_mon if are_head_fusions else head_mon    # dex of the other pokemon for sorting
-                head_mon = self.__retriever.get_name(head_mon)
-                body_mon = self.__retriever.get_name(body_mon)
-                tree_data[2].append((f"{prefix}{fid}", f"{prefix}{fid}_{i}", f"{head_mon} / {body_mon}", dex_num, 1))
+                head_name = self.__retriever.get_name(head_mon)
+                body_name = self.__retriever.get_name(body_mon)
+                tree_data[2].append((f"{prefix}{fid}", f"{prefix}{fid}_{head_mon}-{body_mon}",
+                                     f"{head_name} / {body_name}", dex_num, 1))
 
         # append it at the end, so we can also display the number of fusion lines
         tree_data[0].append(("", f"{prefix}{elid}", f"{self.__retriever.get_name(main_line.end_stage)} "

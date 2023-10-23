@@ -103,6 +103,10 @@ class Pokemon:
     def type2(self) -> str:
         return self.__type2
 
+    @property
+    def _abilities(self) -> List[str]:
+        return self.__abilities
+
     def to_json(self) -> Dict[str, Any]:
         abilities = [[ability, "?"] for ability in self.__abilities]
         return {
@@ -126,3 +130,24 @@ class Pokemon:
 
     def __str__(self):
         return f"{self.__name} #{self.__id}"
+
+
+class FusedMon(Pokemon):
+    def __init__(self, head: Pokemon, body: Pokemon):
+        id_ = head.id * util.max_id() + body.id
+        name = f"?{head.name[:3]}{body.name[3:]}?"  # incorrect but doesn't matter
+
+        hp = int((2 * head.hp + body.hp) / 3)
+        spatk = int((2 * head.spatk + body.spatk) / 3)
+        spdef = int((2 * head.spdef + body.spdef) / 3)
+        atk = int((2 * body.atk + head.atk) / 3)
+        def_ = int((2 * body.def_ + head.def_) / 3)
+        speed = int((2 * body.speed + head.speed) / 3)
+
+        abilities = head._abilities + body._abilities
+        # types not always true since there are some exceptions (e.g., kanto starters and some birds)
+        type1 = head.type1
+        type2 = body.type2
+
+        super().__init__(id_, name, hp, atk, spatk, def_, spdef, speed, abilities, type1, type2)
+
