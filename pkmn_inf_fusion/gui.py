@@ -141,14 +141,8 @@ class GUI:
         # Result section
         row = 2
         ttk.Label(frm, text="Results: ").grid(column=4, row=row)
-
-        ttk.Label(frm, text="Head Fusions: ").grid(column=2, row=1)
-        self.__tree_head_fusions = ttk.Treeview(frm, columns=("fusions"))
-        self.__tree_head_fusions.grid(column=2, row=2)
-
-        ttk.Label(frm, text="Body Fusions: ").grid(column=3, row=1)
-        self.__tree_body_fusions = ttk.Treeview(frm, columns=("fusions"))
-        self.__tree_body_fusions.grid(column=3, row=2)
+        self.__tree_fusions = ttk.Treeview(frm, columns="fusions")
+        self.__tree_fusions.grid(column=4, row=row+1, rowspan=10)
 
         # Fusion details section
         row = 2
@@ -167,10 +161,10 @@ class GUI:
             self.__available_mons.insert("end", f"{GUI.__MON_SPLITER} ".join(available_mons) + "\n")
 
     def __reset(self):
-        for id_ in self.__analyzed_mons:
-            self.__tree_head_fusions.delete(f"{id_}")
-            self.__tree_body_fusions.delete(f"{id_}")
-        self.__analyzed_mons.clear()
+        if len(self.__analyzed_mons) > 0:
+            self.__tree_fusions.delete("head")
+            self.__tree_fusions.delete("body")
+            self.__analyzed_mons.clear()
 
     def _filter_by_availability(self, evolution_lines: List[EvolutionLine]) -> List[EvolutionLine]:
         available_ids = []
@@ -207,24 +201,25 @@ class GUI:
         body_fusions = self.__evo_helper.dex_nums_to_evo_lines(body_fusions)
         body_fusions = self._filter_by_availability(body_fusions)
 
+        self.__tree_fusions.insert("", "end", "head", text=f"Head")
+        self.__tree_fusions.insert("", "end", "body", text=f"Body")
         for evo_line in new_evo_lines:
-            for data in self._get_fusion_tree_data(evo_line, head_fusions, min_rate=min_rate, are_head_fusions=True):
+            for data in self._get_fusion_tree_data_new(evo_line, head_fusions, body_fusions, min_rate):
                 parent_id, item_id, text = data
-                self.__tree_head_fusions.insert(parent_id, "end", item_id, text=text)
-
-            for data in self._get_fusion_tree_data(evo_line, body_fusions, min_rate=min_rate, are_head_fusions=False):
-                parent_id, item_id, text = data
-                self.__tree_body_fusions.insert(parent_id, "end", item_id, text=text)
+                self.__tree_fusions.insert(parent_id, "end", item_id, text=text)
 
     def _get_fusion_tree_data(self, main_line: EvolutionLine, fusion_list: List[EvolutionLine], min_rate: float,
                               are_head_fusions: bool, sort_mode: int = __SM_RATE) -> List[Tuple[str, str, str]]:
         # we need to store three levels: main pokemon,
         tree_data: List[List[Tuple[str, str, str, int, float]]] = [[], [], [],]
+        # appending scheme: "parent_id", "item_id", "text", id for sorting, rate for sorting
         elid = main_line.end_stage
+
+        prefix = "h" if are_head_fusions else "b"
 
         # head fusions use the head from evo_line and the bodies from head_fusions (fusions with main mon as head)
         for other_line in fusion_list:
-            fid = elid * util.max_id() + other_line.end_stage
+            fid = elid * util.max_id() + other_line.end_stage  # fusion id
 
             l1 = main_line if are_head_fusions else other_line
             l2 = other_line if are_head_fusions else main_line
@@ -233,8 +228,9 @@ class GUI:
             # continue with next value if fusion_line doesn't have enough coverage
             if fusion_line.rate < min_rate: continue
 
-            tree_data[1].append((f"{elid}", f"{fid}", f"{self.__retriever.get_name(other_line.end_stage)} "
-                                                      f"#{other_line.end_stage}\t[{100 * fusion_line.rate:.0f}%]",
+            tree_data[1].append((f"{prefix}{elid}", f"{prefix}{fid}",
+                                 f"{self.__retriever.get_name(other_line.end_stage)} "
+                                 f"#{other_line.end_stage}\t[{100 * fusion_line.rate:.0f}%]",
                                  other_line.end_stage, fusion_line.rate))
 
             for i, fusion in enumerate(fusion_line.existing):
@@ -242,11 +238,11 @@ class GUI:
                 dex_num = body_mon if are_head_fusions else head_mon    # dex of the other pokemon for sorting
                 head_mon = self.__retriever.get_name(head_mon)
                 body_mon = self.__retriever.get_name(body_mon)
-                tree_data[2].append((f"{fid}", f"{fid}_{i}", f"{head_mon} / {body_mon}", dex_num, 1))
+                tree_data[2].append((f"{prefix}{fid}", f"{prefix}{fid}_{i}", f"{head_mon} / {body_mon}", dex_num, 1))
 
         # append it at the end, so we can also display the number of fusion lines
-        tree_data[0].append(("", f"{elid}", f"{self.__retriever.get_name(main_line.end_stage)} #{main_line.end_stage} "
-                                            f" x{len(tree_data[1])}", elid, 1))
+        tree_data[0].append(("", f"{prefix}{elid}", f"{self.__retriever.get_name(main_line.end_stage)} "
+                                                    f"#{main_line.end_stage} x{len(tree_data[1])}", elid, 1))
 
         if sort_mode == GUI.__SM_NAME:
             for td in tree_data: td.sort(key=lambda a: a[2])
@@ -258,6 +254,25 @@ class GUI:
             for td in tree_data: td.sort(key=lambda a: a[3])
 
         return [(t[0], t[1], t[2]) for t in tree_data[0] + tree_data[1] + tree_data[2]]
+
+    def _get_fusion_tree_data_new(self, main_line: EvolutionLine, head_fusions: List[EvolutionLine],
+                                  body_fusions: List[EvolutionLine], min_rate: float, sort_mode: int = __SM_RATE) \
+            -> List[Tuple[str, str, str]]:
+        # this function fuses head and body data by introducing a new "head" and "body" level and wrapping the data
+        # correspondingly
+        head_data = self._get_fusion_tree_data(main_line, head_fusions, min_rate, True, sort_mode)
+        body_data = self._get_fusion_tree_data(main_line, body_fusions, min_rate, False, sort_mode)
+
+        tree_data: List[Tuple[str, str, str]] = []
+        for label, data_list in [("head", head_data), ("body", body_data)]:
+            for data in data_list:
+                parent_id, item_id, text = data
+                if len(parent_id) <= 0:     # top level entry if we separate head and body
+                    # add "label" level, so we can display both head and body fusions
+                    tree_data.append((label, item_id, text))
+                else:
+                    tree_data.append(data)
+        return tree_data
 
     def start(self):
         self.__root.mainloop()
