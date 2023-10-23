@@ -1,8 +1,9 @@
+import json
 import os
 from abc import ABC, abstractmethod
 from typing import List, Dict, Union
 
-from pkmn_inf_fusion import util
+from pkmn_inf_fusion import util, Pokemon
 
 
 class FusionRetriever(ABC):
@@ -80,4 +81,59 @@ class DynamicFusionRetriever(FusionRetriever):
         for val in self.__names:
             if self.__names[val].lower() == name:
                 return val
+        return -1
+
+
+class StaticFusionRetriever(FusionRetriever):
+    def __init__(self, pif_dex_path: str, custom_fusions_path: str):
+        """
+
+        :param pif_dex_path: path to json file containing info to create all available Pokémon or path to folder
+                             containing pif_dex.json
+        :param custom_fusions_path: path to json file containing ids of all available fusions or path to folder
+                                    containing custom_fusions.json
+        """
+        if not pif_dex_path.endswith(".json"):
+            pif_dex_path = os.path.join(pif_dex_path, "pif_dex.json")
+        if not custom_fusions_path.endswith(".json"):
+            custom_fusions_path = os.path.join(custom_fusions_path, "custom_fusions.json")
+
+        self.__mons: Dict[int, Pokemon] = {}
+        for mon in Pokemon.load_from_json(pif_dex_path):
+            self.__mons[mon.id] = mon
+
+        self.__fusions: Dict[str, Dict[int, List[int]]] = {
+            "Head": {},
+            "Body": {}
+        }
+        with open(custom_fusions_path, encoding='utf-8') as file:
+            # Load the JSON data
+            data = json.load(file)
+            for key in data["Head"]:
+                id_ = int(key)
+                self.__fusions["Head"][id_] = data["Head"][key]
+            for key in data["Body"]:
+                id_ = int(key)
+                self.__fusions["Body"][id_] = data["Body"][key]
+
+    def get_fusions(self, pkmn: int, as_head: bool = True, as_names: bool = True) -> \
+            Union[List[int], List[str]]:
+        origin = "Head" if as_head else "Body"
+
+        if as_names:
+            return [self.__mons[id_].name for id_ in self.__fusions[origin][pkmn]]
+        else:
+            return self.__fusions[origin][pkmn]
+
+    def get_name(self, pkmn: int) -> str:
+        return self.__mons[pkmn].name
+
+    def get_all_names(self) -> List[str]:
+        return [mon.name for mon in self.__mons.values()]
+
+    def get_id(self, name: str) -> int:
+        name = name.lstrip(" ").rstrip(" ").lower()  # normalize input
+        for mon in self.__mons.values():
+            if mon.name.lower() == name:
+                return mon.id
         return -1

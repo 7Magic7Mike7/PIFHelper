@@ -3,10 +3,10 @@ import os
 import shutil
 from typing import List, Union, Dict, Any, Optional
 
+from .pokemon import Pokemon
 from .fusion_retriever import FusionRetriever, DynamicFusionRetriever, StaticFusionRetriever
 from .evolution_helper import EvolutionLine, EvolutionHelper, FusedEvoLine
 from .gui import GUI
-from .pokemon import Pokemon
 from . import util
 
 
@@ -17,7 +17,8 @@ class Helper:
         :param base_path: path to game's root folder (ends with something like "infinitefusion_5.1.0.1-full")
         """
         self.__base_path = base_path
-        self.__retriever = DynamicFusionRetriever(dex_names, base_path)
+        # self.__retriever = DynamicFusionRetriever(dex_names, base_path)
+        self.__retriever = StaticFusionRetriever("data", "data")
 
     @property
     def retriever(self) -> FusionRetriever:

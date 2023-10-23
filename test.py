@@ -1,9 +1,10 @@
 import os
+import time
 import unittest
 from typing import Dict
 
 import pkmn_inf_fusion as pif
-from pkmn_inf_fusion import Pokemon
+from pkmn_inf_fusion import Pokemon, util
 
 
 class MyTestCase(unittest.TestCase):
@@ -106,6 +107,62 @@ class MyTestCase(unittest.TestCase):
         new_path = os.path.join("data", "pif_dex.json")
         self.assertEqual(len(Pokemon.load_from_json(new_path)), len(helper.retriever.get_all_names()),
                          "Generated json builds different amount of Pokemon than supported!")
+
+    def test_retrieval_speed(self):
+        # while dynamic is significantly (~20x) faster in creation,
+        # it's way slower in processing fusions (~13x for heads, ~1800x for body due to changing folders)
+
+        base_path = MyTestCase.load_default_path()
+
+        times = {
+            "dynamic": {},
+            "static": {}
+        }
+
+        def set_time(mode: str, label: str):
+            cur_time = time.time()
+            if label in times[mode]:
+                last_time = times[mode][label]
+                times[mode][label] = round(cur_time - last_time, ndigits=7)
+            else:
+                times[mode][label] = cur_time
+
+        set_time("dynamic", "init")
+        dynamic = pif.DynamicFusionRetriever(os.path.join("data", "dex_names.txt"), base_path)
+        set_time("dynamic", "init")
+
+        set_time("static", "init")
+        static = pif.StaticFusionRetriever("data", "data")
+        set_time("static", "init")
+
+        ##################################################################
+        set_time("dynamic", "all fusions_head")
+        for id_ in range(util.min_id(), util.max_id() + 1):
+            dynamic.get_fusions(id_, as_head=True, as_names=True)
+        set_time("dynamic", "all fusions_head")
+
+        set_time("static", "all fusions_head")
+        for id_ in range(util.min_id(), util.max_id() + 1):
+            static.get_fusions(id_, as_head=True, as_names=True)
+        set_time("static", "all fusions_head")
+        ##################################################################
+
+        ##################################################################
+        set_time("dynamic", "all fusions_body")
+        for id_ in range(util.min_id(), util.max_id() + 1):
+            dynamic.get_fusions(id_, as_head=False, as_names=True)
+        set_time("dynamic", "all fusions_body")
+
+        set_time("static", "all fusions_body")
+        for id_ in range(util.min_id(), util.max_id() + 1):
+            static.get_fusions(id_, as_head=False, as_names=True)
+        set_time("static", "all fusions_body")
+        ##################################################################
+
+        # no need to test for as_names=False since this is basically instant (O(1)) for static
+
+        print("dynamic: ", times["dynamic"])
+        print("static:  ", times["static"])
 
 
 if __name__ == '__main__':
