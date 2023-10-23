@@ -3,7 +3,7 @@ import os
 import shutil
 from typing import List, Union, Dict, Any, Optional
 
-from .fusion_retriever import FusionRetriever
+from .fusion_retriever import FusionRetriever, DynamicFusionRetriever, StaticFusionRetriever
 from .evolution_helper import EvolutionLine, EvolutionHelper, FusedEvoLine
 from .gui import GUI
 from .pokemon import Pokemon
@@ -17,7 +17,7 @@ class Helper:
         :param base_path: path to game's root folder (ends with something like "infinitefusion_5.1.0.1-full")
         """
         self.__base_path = base_path
-        self.__retriever = FusionRetriever(dex_names)
+        self.__retriever = DynamicFusionRetriever(dex_names, base_path)
 
     @property
     def retriever(self) -> FusionRetriever:
@@ -27,10 +27,10 @@ class Helper:
         return util.check_fusion(self.__base_path, head, body)
 
     def get_head_fusions(self, head: int) -> List[int]:
-        return self.__retriever.get_fusions(self.__base_path, head, as_head=True)
+        return self.__retriever.get_fusions(head, as_head=True)
 
     def get_body_fusions(self, body: int) -> List[int]:
-        return self.__retriever.get_fusions(self.__base_path, body, as_head=False)
+        return self.__retriever.get_fusions(body, as_head=False)
 
     def refresh_image_dex(self, destination: str):
         battlers_path = os.path.join(self.__base_path, "Graphics", "Battlers")
@@ -79,10 +79,10 @@ class Helper:
         for name in self.retriever.get_all_names():
             mon_id = self.retriever.get_id(name)
 
-            body_ids = self.retriever.get_fusions(self.__base_path, mon_id, as_head=True, as_names=False)
+            body_ids = self.retriever.get_fusions(mon_id, as_head=True, as_names=False)
             fusions["Head"][mon_id] = body_ids
 
-            head_ids = self.retriever.get_fusions(self.__base_path, mon_id, as_head=False, as_names=False)
+            head_ids = self.retriever.get_fusions(mon_id, as_head=False, as_names=False)
             fusions["Body"][mon_id] = head_ids
 
             if verbose:

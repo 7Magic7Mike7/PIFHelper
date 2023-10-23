@@ -61,9 +61,8 @@ class GUI:
     __SM_RATE = 1
     __SM_DEX = 2
 
-    def __init__(self, base_path: str, retriever: FusionRetriever, evo_helper: EvolutionHelper,
+    def __init__(self, retriever: FusionRetriever, evo_helper: EvolutionHelper,
                  main_mon: Optional[str] = None, available_mons: Optional[List[str]] = None):
-        self.__base_path = base_path
         self.__retriever = retriever
         self.__evo_helper = evo_helper
         self.__root = Tk(screenName="Pokemon")
@@ -193,11 +192,11 @@ class GUI:
                 new_evo_lines.append(el)
                 self.__analyzed_mons.add(el.end_stage)
 
-        head_fusions = self.__retriever.get_fusions(self.__base_path, dex_num, as_head=True, as_names=False)
+        head_fusions = self.__retriever.get_fusions(dex_num, as_head=True, as_names=False)
         head_fusions = self.__evo_helper.dex_nums_to_evo_lines(head_fusions)
         head_fusions = self._filter_by_availability(head_fusions)
 
-        body_fusions = self.__retriever.get_fusions(self.__base_path, dex_num, as_head=False, as_names=False)
+        body_fusions = self.__retriever.get_fusions(dex_num, as_head=False, as_names=False)
         body_fusions = self.__evo_helper.dex_nums_to_evo_lines(body_fusions)
         body_fusions = self._filter_by_availability(body_fusions)
 
@@ -223,7 +222,7 @@ class GUI:
 
             l1 = main_line if are_head_fusions else other_line
             l2 = other_line if are_head_fusions else main_line
-            fusion_line = FusedEvoLine(self.__base_path, self.__retriever, l1, l2, unidirectional=True)
+            fusion_line = FusedEvoLine(self.__retriever, l1, l2, unidirectional=True)
 
             # continue with next value if fusion_line doesn't have enough coverage
             if fusion_line.rate < min_rate: continue

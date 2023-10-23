@@ -205,11 +205,10 @@ class EvolutionHelper:
 
 
 class FusedEvoLine:
-    def __init__(self, base_path: str, retriever: FusionRetriever, evo_line1: EvolutionLine, evo_line2: EvolutionLine,
+    def __init__(self, retriever: FusionRetriever, evo_line1: EvolutionLine, evo_line2: EvolutionLine,
                  unidirectional: bool = False):
         """
 
-        :param base_path:
         :param retriever:
         :param evo_line1:
         :param evo_line2:
@@ -225,7 +224,7 @@ class FusedEvoLine:
 
         def check_line(line1: EvolutionLine, line2: EvolutionLine):
             for dex_num in line1.to_list():
-                fusions = retriever.get_fusions(base_path, dex_num, as_head=True, as_names=False)
+                fusions = retriever.get_fusions(dex_num, as_head=True, as_names=False)
                 for fused_num in line2.to_list():
                     if fused_num in fusions:
                         existing.append((dex_num, fused_num))

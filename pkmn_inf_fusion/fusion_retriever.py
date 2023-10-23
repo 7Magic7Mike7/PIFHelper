@@ -1,11 +1,32 @@
 import os
+from abc import ABC, abstractmethod
 from typing import List, Dict, Union
 
 from pkmn_inf_fusion import util
 
 
-class FusionRetriever:
-    def __init__(self, dex_names: Union[Dict[int, str], str]):
+class FusionRetriever(ABC):
+    @abstractmethod
+    def get_fusions(self, pkmn: int, as_head: bool = True, as_names: bool = True, ) -> \
+            Union[List[int], List[str]]:
+        pass
+
+    @abstractmethod
+    def get_name(self, pkmn: int) -> str:
+        pass
+
+    @abstractmethod
+    def get_all_names(self) -> List[str]:
+        pass
+
+    @abstractmethod
+    def get_id(self, name: str) -> int:
+        pass
+
+
+class DynamicFusionRetriever(FusionRetriever):
+    def __init__(self, dex_names: Union[Dict[int, str], str], base_path: str):
+        self.__base_path = base_path
         if isinstance(dex_names, str):
             self.__names: Dict[int, str] = {}
 
@@ -21,11 +42,11 @@ class FusionRetriever:
         else:
             self.__names = dex_names
 
-    def get_fusions(self, base_path: str, pkmn: int, as_head: bool = True, as_names: bool = True) -> \
+    def get_fusions(self, pkmn: int, as_head: bool = True, as_names: bool = True) -> \
             Union[List[int], List[str]]:
         fusions = []
         if as_head:
-            dir_path = util.custom_battlers_indexed_folder(base_path, pkmn)
+            dir_path = util.custom_battlers_indexed_folder(self.__base_path, pkmn)
             for file in os.listdir(dir_path):
                 parts = file.split(".")
                 if len(parts) == 3:
@@ -33,7 +54,7 @@ class FusionRetriever:
                     if util.is_valid_pkmn(body_id):
                         fusions.append((int(body_id)))
         else:
-            dir_path = util.custom_battlers_indexed_folder(base_path)
+            dir_path = util.custom_battlers_indexed_folder(self.__base_path)
             for folder in os.listdir(dir_path):
                 if util.is_valid_pkmn(folder):
                     full_path = os.path.join(dir_path, folder, f"{folder}.{pkmn}.png")
