@@ -1,7 +1,9 @@
 import os
 import unittest
+from typing import Dict
 
 import pkmn_inf_fusion as pif
+from pkmn_inf_fusion import Pokemon
 
 
 class MyTestCase(unittest.TestCase):
@@ -85,6 +87,25 @@ class MyTestCase(unittest.TestCase):
         dex_nums.append(helper.retriever.get_id("Slowpoke"))
         reduced_evo_lines = evo_helper.dex_nums_to_evo_lines(dex_nums)
         self.assertEqual(len(reduced_evo_lines), 4)
+
+    def test_json_parser(self):
+        base_path = os.path.join("D:\\", "Games", "Pokemon", "infinitefusion_5.1.0.1-full")
+        path = os.path.join("data", "pokedex.json")
+
+        mons = Pokemon.load_from_json(path)
+        helper = pif.Helper(base_path, os.path.join("data", "dex_names.txt"))
+
+        mon_dic: Dict[str, Pokemon] = {}
+        for mon in mons: mon_dic[mon.name] = mon
+
+        for name in helper.retriever.get_all_names():
+            self.assertTrue(name in mon_dic, f"{name} not found!")
+
+        helper.refresh_pif_dex_json("data")
+
+        new_path = os.path.join("data", "pif_dex.json")
+        self.assertEqual(len(Pokemon.load_from_json(new_path)), len(helper.retriever.get_all_names()),
+                         "Generated json builds different amount of Pokemon than supported!")
 
 
 if __name__ == '__main__':
