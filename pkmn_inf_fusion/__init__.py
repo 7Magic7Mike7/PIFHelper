@@ -1,10 +1,12 @@
+import json
 import os
 import shutil
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Any, Optional
 
 from .fusion_retriever import FusionRetriever
 from .evolution_helper import EvolutionLine, EvolutionHelper, FusedEvoLine
 from .gui import GUI
+from .pokemon import Pokemon
 from . import util
 
 
@@ -45,3 +47,23 @@ class Helper:
             src = os.path.join(battlers_path, str(i), f"{i}.{i}.png")
             dst = os.path.join(destination, f"{i}.png")
             shutil.copyfile(src, dst)
+
+    def refresh_pif_dex_json(self, destination: str, src: Optional[str] = None):
+        if not destination.endswith(".json"):
+            destination = os.path.join(destination, "pif_dex.json")
+        if src is None:
+            src = os.path.join("data", "pokedex.json")
+
+        mons = Pokemon.load_from_json(src)
+        mon_dic: Dict[str, Pokemon] = {}
+        for mon in mons: mon_dic[mon.name] = mon
+
+        json_content: List[Dict[str, Any]] = []
+        for name in self.retriever.get_all_names():
+            pif_id = self.retriever.get_id(name)
+            mon = mon_dic[name].to_json()
+            mon["id"] = pif_id
+            json_content.append(mon)
+
+        with open(destination, "wt") as file:
+            json.dump(json_content, file, indent=4)
