@@ -2,6 +2,8 @@ import json
 
 from typing import List, Dict, Any, Optional
 
+from pkmn_inf_fusion import util
+
 
 class Pokemon:
     @staticmethod
@@ -88,6 +90,10 @@ class Pokemon:
     @property
     def speed(self) -> int:
         return self.__speed
+
+    @property
+    def bst(self) -> int:
+        return self.__hp + self.__atk + self.__spatk + self.__def + self.__spdef + self.__speed
 
     @property
     def type1(self) -> str:

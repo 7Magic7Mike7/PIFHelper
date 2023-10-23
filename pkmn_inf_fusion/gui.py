@@ -2,13 +2,17 @@ import tkinter
 from tkinter import ttk, Tk, IntVar, StringVar, DoubleVar
 from typing import List, Tuple, Set, Optional, Dict
 
-from pkmn_inf_fusion import EvolutionHelper, FusionRetriever, EvolutionLine, FusedEvoLine, util
+from pkmn_inf_fusion import EvolutionHelper, FusionRetriever, EvolutionLine, FusedEvoLine, util, Pokemon
 
 
 class GUI:
     class _Filter:
         def __init__(self):
             self.__vars: Dict[str, Tuple[DoubleVar, StringVar, ttk.Label, ttk.Entry, ttk.Scale]] = {}
+
+        def _parse_val(self, stat: str) -> float:
+            _, string_var, _, _, _ = self.__vars[stat]
+            return float(string_var.get())
 
         def _set_text(self, stat: str):
             assert stat in self.__vars, f"Variable={stat} not stored in this filter!"
@@ -22,7 +26,7 @@ class GUI:
 
             double_var, string_var, _, _, scale = self.__vars[stat]
             if string_var is not None and double_var is not None:
-                val = float(string_var.get())
+                val = self._parse_val(stat)
                 double_var.set(val)     # todo check if val is valid/in range?
 
         def add_filter(self, master, name: str, from_: float, to_: float, label: Optional[str] = None,
@@ -54,6 +58,24 @@ class GUI:
 
             self.__vars[name] = double_var, string_var, label_, entry, scale
             return label_, entry, scale
+
+        def fulfills_criteria(self, mon: Pokemon) -> bool:
+            if mon.bst < self._parse_val("bst"):
+                return False
+            if mon.hp < self._parse_val("hp"):
+                return False
+            if mon.atk < self._parse_val("atk"):
+                return False
+            if mon.spatk < self._parse_val("spatk"):
+                return False
+            if mon.def_ < self._parse_val("def"):
+                return False
+            if mon.spdef < self._parse_val("spdef"):
+                return False
+            if mon.speed < self._parse_val("spd"):
+                return False
+
+            return True
 
     __MON_SPLITER = ";"
     __DEFAULT_RATE = 50
@@ -175,6 +197,14 @@ class GUI:
         if len(available_ids) <= 0: return evolution_lines  # don't filter if we would get an empty result
         return EvolutionHelper.availability_filter(evolution_lines, available_ids)
 
+    def _filter_by_input(self, evolution_lines: List[EvolutionLine]) -> List[EvolutionLine]:
+        remaining = []
+        for el in evolution_lines:
+            mon = self.__retriever.get_pokemon(el.end_stage)
+            if mon is None or self.__filter.fulfills_criteria(mon):
+                remaining.append(el)
+        return remaining
+
     def __analyse(self):
         # validate user input
         assert self.__retriever.get_id(self.__e_main_mon.get()) >= 0, f"Entry not valid: {self.__e_main_mon.get()}!"
@@ -195,10 +225,12 @@ class GUI:
         head_fusions = self.__retriever.get_fusions(dex_num, as_head=True, as_names=False)
         head_fusions = self.__evo_helper.dex_nums_to_evo_lines(head_fusions)
         head_fusions = self._filter_by_availability(head_fusions)
+        head_fusions = self._filter_by_input(head_fusions)
 
         body_fusions = self.__retriever.get_fusions(dex_num, as_head=False, as_names=False)
         body_fusions = self.__evo_helper.dex_nums_to_evo_lines(body_fusions)
         body_fusions = self._filter_by_availability(body_fusions)
+        body_fusions = self._filter_by_input(body_fusions)
 
         self.__tree_fusions.insert("", "end", "head", text=f"Head")
         self.__tree_fusions.insert("", "end", "body", text=f"Body")

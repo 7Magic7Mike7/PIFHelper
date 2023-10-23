@@ -1,7 +1,7 @@
 import json
 import os
 from abc import ABC, abstractmethod
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 
 from pkmn_inf_fusion import util, Pokemon
 
@@ -22,6 +22,10 @@ class FusionRetriever(ABC):
 
     @abstractmethod
     def get_id(self, name: str) -> int:
+        pass
+
+    @abstractmethod
+    def get_pokemon(self, id_: int) -> Optional[Pokemon]:
         pass
 
 
@@ -83,6 +87,9 @@ class DynamicFusionRetriever(FusionRetriever):
                 return val
         return -1
 
+    def get_pokemon(self, id_: int) -> Optional[Pokemon]:
+        return None
+
 
 class StaticFusionRetriever(FusionRetriever):
     def __init__(self, pif_dex_path: str, custom_fusions_path: str):
@@ -137,3 +144,8 @@ class StaticFusionRetriever(FusionRetriever):
             if mon.name.lower() == name:
                 return mon.id
         return -1
+
+    def get_pokemon(self, id_: int) -> Optional[Pokemon]:
+        if id_ in self.__mons:
+            return self.__mons[id_]
+        return None
