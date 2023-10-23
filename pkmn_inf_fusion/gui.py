@@ -128,7 +128,7 @@ class GUI:
         # main pokemon to search for fusions
         ttk.Label(frm, text="Main Pokemon: ").grid(column=0, row=0)
         self.__e_main_mon = ttk.Combobox(frm, values=self.__pokemon_list)
-        self.__e_main_mon.grid(column=1, row=0, columnspan=1)
+        self.__e_main_mon.grid(column=1, row=0, columnspan=2)
 
         # available pokemon to fuse with main pokemon
         ttk.Label(frm, text="Available Pokemon: ").grid(column=4, row=0)
@@ -163,7 +163,7 @@ class GUI:
         row = 2
         ttk.Label(frm, text="Results: ").grid(column=4, row=row)
         self.__tree_fusions = ttk.Treeview(frm, columns="fusions")
-        self.__tree_fusions.grid(column=4, row=row+1, rowspan=10)
+        self.__tree_fusions.grid(column=4, row=row+1, columnspan=2, rowspan=10)
 
         # Fusion details section
         row = 2
@@ -187,8 +187,8 @@ class GUI:
 
         # buttons at the bottom
         row = 16
-        ttk.Button(frm, text="Analyse", command=self.__analyse, width=30).grid(column=0, row=row, columnspan=2)
-        ttk.Button(frm, text="Reset", command=self.__reset, width=30).grid(column=2, row=row)
+        ttk.Button(frm, text="Analyse", command=self.__analyse, width=30).grid(column=0, row=row, columnspan=3)
+        ttk.Button(frm, text="Reset", command=self.__reset, width=30).grid(column=4, row=row)
 
         # insert values
         if main_mon is not None:
