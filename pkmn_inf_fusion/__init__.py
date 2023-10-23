@@ -67,3 +67,26 @@ class Helper:
 
         with open(destination, "wt") as file:
             json.dump(json_content, file, indent=4)
+
+    def refresh_existing_fusions(self, destination: str, verbose: bool = False):
+        if not destination.endswith(".json"):
+            destination = os.path.join(destination, "custom_fusions.json")
+
+        fusions: Dict[str, Dict[int, List[int]]] = {
+            "Head": {},
+            "Body": {}
+        }
+        for name in self.retriever.get_all_names():
+            mon_id = self.retriever.get_id(name)
+
+            body_ids = self.retriever.get_fusions(self.__base_path, mon_id, as_head=True, as_names=False)
+            fusions["Head"][mon_id] = body_ids
+
+            head_ids = self.retriever.get_fusions(self.__base_path, mon_id, as_head=False, as_names=False)
+            fusions["Body"][mon_id] = head_ids
+
+            if verbose:
+                print(f"{name} done")
+
+        with open(destination, "wt") as file:
+            json.dump(fusions, file, indent=4)
