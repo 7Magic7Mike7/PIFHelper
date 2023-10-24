@@ -108,8 +108,8 @@ class GUI:
         SPD   ? -------------              |         Fusion1                 |    | SPDEF:  124         |
                                            |         Fusion2                 |    | SPD:    123         |
         TYPE(s) [____|v] OR/AND [____|v]   |         Fusion3                 |    |                     |
-        Min rate 0 ---------- 100          |                                 |    | Type:    T1  (T2)   |
-        Ability [____|v]                   |+ Body                           |    | Abilities:  [____|v]|
+        Ability [____|v]                   |                                 |    | Type:    T1  (T2)   |
+        Min rate 0 ---------- 100          |+ Body                           |    | Abilities:  [____|v]|
                                            |                                 |    |                     |
         Only BST > BaseMons [x]            -----------------------------------    -----------------------
                                                                                          {SAVE}
