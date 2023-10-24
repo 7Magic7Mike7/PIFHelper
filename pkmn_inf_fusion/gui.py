@@ -89,6 +89,7 @@ class GUI:
         self.__evo_helper = evo_helper
         self.__root = Tk(screenName="Pokemon")
         self.__pokemon_list = retriever.get_all_names()
+        self.__num_fusions = 0
 
         # rough looks of the UI
         """
@@ -198,6 +199,8 @@ class GUI:
             self.__available_mons.insert("end", f"{GUI.__MON_SPLITER} ".join(available_mons) + "\n")
 
     def __set_details(self, event):
+        if self.__num_fusions <= 0: return
+
         encoded_id = self.__tree_fusions.focus()
         pokemon = None
         try:
@@ -243,8 +246,10 @@ class GUI:
             self.__details["abilities"].set(ab_str[:-2])    # remove trailing ", "
 
     def __reset(self):
-        self.__tree_fusions.delete("head")
-        self.__tree_fusions.delete("body")
+        if self.__num_fusions > 0:
+            self.__tree_fusions.delete("head")
+            self.__tree_fusions.delete("body")
+            self.__num_fusions = 0
 
     def _filter_by_availability(self, evolution_lines: List[EvolutionLine]) -> List[EvolutionLine]:
         available_ids = []
@@ -284,6 +289,8 @@ class GUI:
         body_fusions = self.__evo_helper.dex_nums_to_evo_lines(body_fusions)
         body_fusions = self._filter_by_availability(body_fusions)
         body_fusions = self._filter_by_input(body_fusions)
+
+        self.__num_fusions = len(head_fusions) + len(body_fusions)
 
         self.__tree_fusions.insert("", "end", "head", text=f"Head")
         self.__tree_fusions.insert("", "end", "body", text=f"Body")
