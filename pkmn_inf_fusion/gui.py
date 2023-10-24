@@ -108,7 +108,7 @@ class GUI:
         TYPE(s) [____|v] OR/AND [____|v]   |         Fusion3                 |    |                     |
         Min rate 0 ---------- 100          |                                 |    | Type:    T1  (T2)   |
         Ability [____|v]                   |+ Body                           |    | Abilities:  [____|v]|
-        Move    [____|v]                   |                                 |    | Moves?              |
+                                           |                                 |    |                     |
         Only BST > BaseMons [x]            -----------------------------------    -----------------------
         
                 {ANALYZE}                                                         {OPEN IMAGE OF SELECTED FUSION}
