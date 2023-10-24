@@ -111,7 +111,7 @@ class GUI:
                                            |                                 |    |                     |
         Only BST > BaseMons [x]            -----------------------------------    -----------------------
         
-                {ANALYZE}                                                         {OPEN IMAGE OF SELECTED FUSION}
+                {ANALYZE}     {RESET}     {SWAP FUSION}                        {OPEN IMAGE OF SELECTED FUSION}
         """
 
         # title
