@@ -143,14 +143,14 @@ class GUI:
         ttk.Label(frm, text="Filter: ", style="BW.TLabel").grid(column=0, row=row)
         self.__filter = GUI._Filter()
 
-        self.__filter.add_filter(frm, "bst", from_=0, to_=800, label="BST  ", col=0, row=row+1)
+        self.__filter.add_filter(frm, "bst", from_=0, to_=600, label="BST  ", col=0, row=row+1)
 
-        self.__filter.add_filter(frm, "hp", from_=0, to_=600, label="HP   ", col=0, row=row+2)
-        self.__filter.add_filter(frm, "atk", from_=0, to_=600, label="ATK  ", col=0, row=row+3)
-        self.__filter.add_filter(frm, "spatk", from_=0, to_=600, label="SPATK", col=0, row=row+4)
-        self.__filter.add_filter(frm, "def", from_=0, to_=600, label="DEF  ", col=0, row=row+5)
-        self.__filter.add_filter(frm, "spdef", from_=0, to_=600, label="SPDEF", col=0, row=row+6)
-        self.__filter.add_filter(frm, "spd", from_=0, to_=600, label="SPD  ", col=0, row=row+7)
+        self.__filter.add_filter(frm, "hp", from_=0, to_=200, label="HP   ", col=0, row=row+2)
+        self.__filter.add_filter(frm, "atk", from_=0, to_=200, label="ATK  ", col=0, row=row+3)
+        self.__filter.add_filter(frm, "spatk", from_=0, to_=200, label="SPATK", col=0, row=row+4)
+        self.__filter.add_filter(frm, "def", from_=0, to_=200, label="DEF  ", col=0, row=row+5)
+        self.__filter.add_filter(frm, "spdef", from_=0, to_=200, label="SPDEF", col=0, row=row+6)
+        self.__filter.add_filter(frm, "spd", from_=0, to_=200, label="SPD  ", col=0, row=row+7)
 
         # minimum completion rate of main pokemon's and other pokemon's evolution line
         row = row+10
