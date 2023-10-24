@@ -391,9 +391,10 @@ class GUI:
                 tree_data[2].append((f"{prefix}{fid}", f"{prefix}{fid}_{head_mon}-{body_mon}",
                                      f"{head_name} / {body_name}", dex_num, 1))
 
-        # append it at the end, so we can also display the number of fusion lines
-        tree_data[0].append(("", f"{prefix}{elid}", f"{self.__retriever.get_name(main_line.end_stage)} "
-                                                    f"#{main_line.end_stage} x{len(tree_data[1])}", elid, 1))
+        if len(tree_data[1]) > 0:   # only append if there are children (e.g. fusions)
+            # append it at the end, so we can also display the number of fusion lines
+            tree_data[0].append(("", f"{prefix}{elid}", f"{self.__retriever.get_name(main_line.end_stage)} "
+                                                        f"#{main_line.end_stage} x{len(tree_data[1])}", elid, 1))
 
         if sort_mode == GUI.__SM_NAME:
             for td in tree_data: td.sort(key=lambda a: a[2])
