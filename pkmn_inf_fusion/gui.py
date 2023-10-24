@@ -153,8 +153,17 @@ class GUI:
         self.__filter.add_filter(frm, "spdef", from_=0, to_=200, label="SPDEF", col=0, row=row+6)
         self.__filter.add_filter(frm, "spd", from_=0, to_=200, label="SPD  ", col=0, row=row+7)
 
+        row = row+9
+        ttk.Label(frm, text="Type: ").grid(column=0, row=row)
+        self.__type = StringVar(value="")
+        ttk.Combobox(frm, width=10, values=Pokemon.types(), textvariable=self.__type).grid(column=1, row=row, columnspan=2)
+
+        ttk.Label(frm, text="Ability:").grid(column=0, row=row+1)
+        self.__ability = StringVar(value="")
+        ttk.Entry(frm, width=15, textvariable=self.__ability).grid(column=1, row=row+1, columnspan=2)
+
         # minimum completion rate of main pokemon's and other pokemon's evolution line
-        row = row+10
+        row = row+2
         ttk.Label(frm, text="Min % ").grid(column=0, row=row)
         self.__e_rate = ttk.Entry(frm, width=3)
         self.__e_rate.grid(column=1, row=row)
@@ -311,8 +320,16 @@ class GUI:
         remaining = []
         for el in evolution_lines:
             mon = self.__retriever.get_pokemon(el.end_stage)
-            if mon is None or self.__filter.fulfills_criteria(mon):
+            if mon is None:
                 remaining.append(el)
+            elif self.__filter.fulfills_criteria(mon):      # check if stats are above filter values
+                # also check type and ability
+                type_ = self.__type.get()
+                ability = self.__ability.get().strip()
+                # either no type or a present type must have been given (and same for ability)
+                if (len(type_) <= 0 or type_ in [mon.type1, mon.type2]) and \
+                        (len(ability) <= 0 or ability in mon.abilities):
+                    remaining.append(el)
         return remaining
 
     def __analyse(self):
