@@ -90,7 +90,7 @@ class GUI:
         self.__evo_helper = evo_helper
         self.__root = Tk(screenName="Pokemon")
         self.__pokemon_list = retriever.get_all_names()
-        self.__num_fusions = 0
+        self.__tree_is_resettable = False
 
         # rough looks of the UI
         """
@@ -212,8 +212,6 @@ class GUI:
             self.__available_mons.insert("end", f"{GUI.__MON_SPLITER} ".join(available_mons) + "\n")
 
     def __set_details(self, event):
-        if self.__num_fusions <= 0: return
-
         encoded_id = self.__tree_fusions.focus()
         pokemon = None
         if encoded_id.startswith(GUI.__SAFE_PREFIX):
@@ -261,7 +259,7 @@ class GUI:
             self.__details["abilities"].set(ab_str[:-2])    # remove trailing ", "
 
     def __save_details(self):
-        if self.__num_fusions <= 0: return
+        if not self.__tree_is_resettable: return    # this means there are no head or body fusions
 
         encoded_id = self.__tree_fusions.focus()
         if encoded_id.startswith(GUI.__SAFE_PREFIX): return     # don't save again
@@ -296,12 +294,11 @@ class GUI:
         if text is not None:
             self.__tree_fusions.insert("safe", "end", f"{GUI.__SAFE_PREFIX}{encoded_id}", text=text)
 
-
     def __reset(self, delete_safe: bool = True):
-        if self.__num_fusions > 0:
+        if self.__tree_is_resettable:
             self.__tree_fusions.delete("head")
             self.__tree_fusions.delete("body")
-            self.__num_fusions = 0
+            self.__tree_is_resettable = False
         if delete_safe:
             self.__tree_fusions.delete("safe")
             self.__tree_fusions.insert("", "end", "safe", text="Safe")
@@ -353,14 +350,13 @@ class GUI:
         body_fusions = self._filter_by_availability(body_fusions)
         body_fusions = self._filter_by_input(body_fusions)
 
-        self.__num_fusions = len(head_fusions) + len(body_fusions)
-
         self.__tree_fusions.insert("", "end", "head", text=f"Head")
         self.__tree_fusions.insert("", "end", "body", text=f"Body")
         for evo_line in evo_lines:
             for data in self._get_fusion_tree_data_new(evo_line, head_fusions, body_fusions, min_rate):
                 parent_id, item_id, text = data
                 self.__tree_fusions.insert(parent_id, "end", item_id, text=text)
+        self.__tree_is_resettable = True
 
     def _get_fusion_tree_data(self, main_line: EvolutionLine, fusion_list: List[EvolutionLine], min_rate: float,
                               are_head_fusions: bool, sort_mode: int = __SM_RATE) -> List[Tuple[str, str, str]]:
