@@ -89,7 +89,6 @@ class GUI:
         self.__evo_helper = evo_helper
         self.__root = Tk(screenName="Pokemon")
         self.__pokemon_list = retriever.get_all_names()
-        self.__analyzed_mons: Set[int] = set()
 
         # rough looks of the UI
         """
@@ -233,10 +232,8 @@ class GUI:
             self.__details["spd"].set(str(pokemon.speed))
 
     def __reset(self):
-        if len(self.__analyzed_mons) > 0:
-            self.__tree_fusions.delete("head")
-            self.__tree_fusions.delete("body")
-            self.__analyzed_mons.clear()
+        self.__tree_fusions.delete("head")
+        self.__tree_fusions.delete("body")
 
     def _filter_by_availability(self, evolution_lines: List[EvolutionLine]) -> List[EvolutionLine]:
         available_ids = []
@@ -267,12 +264,6 @@ class GUI:
         dex_num = self.__retriever.get_id(self.__e_main_mon.get())
         evo_lines = self.__evo_helper.get_evolution_lines(dex_num)
 
-        new_evo_lines = []
-        for el in evo_lines:    # filter out every pokemon we already analyzed
-            if el.end_stage not in self.__analyzed_mons:
-                new_evo_lines.append(el)
-                self.__analyzed_mons.add(el.end_stage)
-
         head_fusions = self.__retriever.get_fusions(dex_num, as_head=True, as_names=False)
         head_fusions = self.__evo_helper.dex_nums_to_evo_lines(head_fusions)
         head_fusions = self._filter_by_availability(head_fusions)
@@ -285,7 +276,7 @@ class GUI:
 
         self.__tree_fusions.insert("", "end", "head", text=f"Head")
         self.__tree_fusions.insert("", "end", "body", text=f"Body")
-        for evo_line in new_evo_lines:
+        for evo_line in evo_lines:
             for data in self._get_fusion_tree_data_new(evo_line, head_fusions, body_fusions, min_rate):
                 parent_id, item_id, text = data
                 self.__tree_fusions.insert(parent_id, "end", item_id, text=text)
