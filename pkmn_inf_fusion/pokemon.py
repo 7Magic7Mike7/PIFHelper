@@ -60,6 +60,10 @@ class Pokemon:
         self.__type2 = type2
 
     @property
+    def is_dual_type(self) -> bool:
+        return self.__type1 != self.__type2
+
+    @property
     def id(self) -> int:
         return self.__id
 
@@ -104,8 +108,8 @@ class Pokemon:
         return self.__type2
 
     @property
-    def _abilities(self) -> List[str]:
-        return self.__abilities
+    def abilities(self) -> List[str]:
+        return self.__abilities.copy()
 
     def to_json(self) -> Dict[str, Any]:
         abilities = [[ability, "?"] for ability in self.__abilities]
@@ -144,7 +148,7 @@ class FusedMon(Pokemon):
         def_ = int((2 * body.def_ + head.def_) / 3)
         speed = int((2 * body.speed + head.speed) / 3)
 
-        abilities = head._abilities + body._abilities
+        abilities = head.abilities + body.abilities
         # types not always true since there are some exceptions (e.g., kanto starters and some birds)
         type1 = head.type1
         type2 = body.type2

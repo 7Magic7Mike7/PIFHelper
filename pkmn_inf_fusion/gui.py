@@ -164,7 +164,7 @@ class GUI:
         self.__tree_fusions = ttk.Treeview(frm, columns="fusions")
         self.__tree_fusions.grid(column=4, row=row+1, columnspan=2, rowspan=10)
 
-        # Fusion details section
+        # Pokemon details section
         row = 2
         ttk.Label(frm, text="Selected Fusion Data: ").grid(column=6, row=row)
         self.__details: Dict[str, StringVar] = {}
@@ -181,6 +181,8 @@ class GUI:
         add_detail("def", "DEF:   ", row+5)
         add_detail("spdef", "SPDEF: ", row+6)
         add_detail("spd", "SPEED: ", row+7)
+        add_detail("type", "Type:  ", row+8)
+        add_detail("abilities", "Abilities: ", row+9)
 
         self.__tree_fusions.bind("<<TreeviewSelect>>", self.__set_details)
 
@@ -230,6 +232,15 @@ class GUI:
             self.__details["def"].set(str(pokemon.def_))
             self.__details["spdef"].set(str(pokemon.spdef))
             self.__details["spd"].set(str(pokemon.speed))
+
+            type_str = f"{pokemon.type1} / {pokemon.type2}" if pokemon.is_dual_type else pokemon.type1
+            self.__details["type"].set(type_str)
+
+            ab_str = ""
+            for i, ability in enumerate(pokemon.abilities):
+                if i % 3 == 0: ab_str += "\n"
+                ab_str += f"{ability}, "
+            self.__details["abilities"].set(ab_str[:-2])    # remove trailing ", "
 
     def __reset(self):
         self.__tree_fusions.delete("head")
