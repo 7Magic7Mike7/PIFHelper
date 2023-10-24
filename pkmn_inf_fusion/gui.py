@@ -78,6 +78,7 @@ class GUI:
             return True
 
     __MON_SPLITER = ";"
+    __SAFE_PREFIX = "safe_"
     __DEFAULT_RATE = 50
     __SM_NAME = 0
     __SM_RATE = 1
@@ -111,7 +112,7 @@ class GUI:
         Ability [____|v]                   |+ Body                           |    | Abilities:  [____|v]|
                                            |                                 |    |                     |
         Only BST > BaseMons [x]            -----------------------------------    -----------------------
-        
+                                                                                         {SAVE}
                 {ANALYZE}     {RESET}     {SWAP FUSION}                        {OPEN IMAGE OF SELECTED FUSION}
         """
 
@@ -164,6 +165,7 @@ class GUI:
         ttk.Label(frm, text="Results: ").grid(column=4, row=row)
         self.__tree_fusions = ttk.Treeview(frm, columns="fusions")
         self.__tree_fusions.grid(column=4, row=row+1, columnspan=2, rowspan=10)
+        self.__tree_fusions.insert("", "end", "safe", text="Safe")
 
         # Pokemon details section
         row = 2
@@ -185,6 +187,8 @@ class GUI:
         add_detail("type", "Type:  ", row+8)
         add_detail("abilities", "Abilities: ", row+9)
 
+        ttk.Button(frm, text="Save", command=self.__save_details, width=15).grid(column=6, row=row+11, columnspan=2)
+
         self.__tree_fusions.bind("<<TreeviewSelect>>", self.__set_details)
 
         # buttons at the bottom
@@ -203,6 +207,8 @@ class GUI:
 
         encoded_id = self.__tree_fusions.focus()
         pokemon = None
+        if encoded_id.startswith(GUI.__SAFE_PREFIX):
+            encoded_id = encoded_id[len(GUI.__SAFE_PREFIX):]    # remove safe prefix
         try:
             if "_" in encoded_id:
                 # we selected a concrete fusion
@@ -217,7 +223,7 @@ class GUI:
                 data = encoded_id[1:].split("-")  # split ids separated by "-"
                 mon_id = int(data[1])
                 pokemon = self.__retriever.get_pokemon(mon_id)
-            elif encoded_id in ["head", "body"]:
+            elif encoded_id in ["head", "body", "safe"]:
                 pass  # nothing to do
             else:
                 # we selected a single pokemon
@@ -245,11 +251,51 @@ class GUI:
                 ab_str += f"{ability}, "
             self.__details["abilities"].set(ab_str[:-2])    # remove trailing ", "
 
-    def __reset(self):
+    def __save_details(self):
+        if self.__num_fusions <= 0: return
+
+        encoded_id = self.__tree_fusions.focus()
+        if encoded_id.startswith(GUI.__SAFE_PREFIX): return     # don't save again
+
+        text = None
+        try:
+            if "_" in encoded_id:
+                # we selected a concrete fusion
+                data = encoded_id.split("_")[1]  # first part is evolution line, second part is concrete
+                data = data.split("-")
+                head_id = int(data[0])
+                body_id = int(data[1])
+                pokemon = FusedMon(self.__retriever.get_pokemon(head_id), self.__retriever.get_pokemon(body_id))
+
+                text = pokemon.name
+            elif "-" in encoded_id:
+                # we selected a fusion line -> showcase base mon since the concrete fusion can be seen by expanding
+                # skip prefix ("h" or "b") indicating for this case irrelevant fusion position
+                data = encoded_id[1:].split("-")  # split ids separated by "-"
+                mon_id = int(data[1])
+                text = self.__retriever.get_name(mon_id)
+            elif encoded_id in ["head", "body", "safe"]:
+                pass  # nothing to do
+            else:
+                # we selected a single pokemon
+                # skip prefix ("h" or "b") indicating for this case irrelevant fusion position
+                mon_id = int(encoded_id[1:])
+                text = self.__retriever.get_name(mon_id)
+        except:
+            print(f"Selection error for id: {encoded_id}")
+
+        if text is not None:
+            self.__tree_fusions.insert("safe", "end", f"{GUI.__SAFE_PREFIX}{encoded_id}", text=text)
+
+
+    def __reset(self, delete_safe: bool = True):
         if self.__num_fusions > 0:
             self.__tree_fusions.delete("head")
             self.__tree_fusions.delete("body")
             self.__num_fusions = 0
+        if delete_safe:
+            self.__tree_fusions.delete("safe")
+            self.__tree_fusions.insert("", "end", "safe", text="Safe")
 
     def _filter_by_availability(self, evolution_lines: List[EvolutionLine]) -> List[EvolutionLine]:
         available_ids = []
@@ -275,7 +321,7 @@ class GUI:
         min_rate = float(self.__e_rate.get()) / 100     # convert % to decimal
         assert 0 <= min_rate <= 1.0, f"Invalid rate: {min_rate}!"
 
-        self.__reset()      # remove old data before we analyse
+        self.__reset(delete_safe=False)      # remove old data before we analyse
 
         dex_num = self.__retriever.get_id(self.__e_main_mon.get())
         evo_lines = self.__evo_helper.get_evolution_lines(dex_num)
