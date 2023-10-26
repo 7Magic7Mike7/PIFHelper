@@ -326,6 +326,14 @@ class FusedEvoLine:
 
         return text
 
+    def to_mons(self) -> List[FusedMon]:
+        mons = []
+        for head, body in self.__existing:
+            mon = FusionRetriever.from_ids(self.__retriever, head, body)
+            if mon is not None:
+                mons.append(mon)
+        return mons
+
     def __str__(self) -> str:
         return f"EvoLine-Fusions of #{self.__line1.end_stage} & #{self.__line2.end_stage} " \
                f"({len(self.__existing)} exist, {len(self.__missing)} miss)"
