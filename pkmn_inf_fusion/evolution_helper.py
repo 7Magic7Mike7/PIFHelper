@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Union, Tuple, Set, Iterator
+from typing import List, Dict, Optional, Union, Tuple, Set, Iterator, Iterable
 
 from pkmn_inf_fusion import util, FusionRetriever, FusedMon
 
@@ -133,7 +133,8 @@ class EvolutionLine:
 
 class EvolutionHelper:
     @staticmethod
-    def availability_filter(evolution_lines: List[EvolutionLine], available_ids: List[int]) -> List[EvolutionLine]:
+    def availability_filter(evolution_lines: Iterable[EvolutionLine], available_ids: Iterable[int]) \
+            -> Iterable[EvolutionLine]:
         """
 
         :param evolution_lines: the list of evolution lines we want to filter

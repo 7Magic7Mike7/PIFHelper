@@ -1,6 +1,6 @@
 import tkinter
 from tkinter import ttk, Tk, IntVar, StringVar, DoubleVar
-from typing import List, Tuple, Set, Optional, Dict
+from typing import List, Tuple, Set, Optional, Dict, Iterable
 
 from pkmn_inf_fusion import EvolutionHelper, FusionRetriever, EvolutionLine, FusedEvoLine, util, Pokemon, FusedMon
 
@@ -303,7 +303,7 @@ class GUI:
             self.__tree_fusions.delete("safe")
             self.__tree_fusions.insert("", "end", "safe", text="Safe")
 
-    def _filter_by_availability(self, evolution_lines: List[EvolutionLine]) -> List[EvolutionLine]:
+    def _filter_by_availability(self, evolution_lines: Iterable[EvolutionLine]) -> Iterable[EvolutionLine]:
         available_ids = []
         # go through every line in our text area for available pokemon
         for mon in self.__available_mons.get().split(";"):
@@ -313,7 +313,7 @@ class GUI:
         if len(available_ids) <= 0: return evolution_lines  # don't filter if we would get an empty result
         return EvolutionHelper.availability_filter(evolution_lines, available_ids)
 
-    def _filter_by_input(self, evolution_lines: List[EvolutionLine]) -> List[EvolutionLine]:
+    def _filter_by_input(self, evolution_lines: Iterable[EvolutionLine]) -> Iterable[EvolutionLine]:
         remaining = []
         for el in evolution_lines:
             mon = self.__retriever.get_pokemon(el.end_stage)
@@ -358,7 +358,7 @@ class GUI:
                 self.__tree_fusions.insert(parent_id, "end", item_id, text=text)
         self.__tree_is_resettable = True
 
-    def _get_fusion_tree_data(self, main_line: EvolutionLine, fusion_list: List[EvolutionLine], min_rate: float,
+    def _get_fusion_tree_data(self, main_line: EvolutionLine, fusion_list: Iterable[EvolutionLine], min_rate: float,
                               are_head_fusions: bool, sort_mode: int = __SM_RATE) -> List[Tuple[str, str, str]]:
         # we need to store three levels: main pokemon,
         tree_data: List[List[Tuple[str, str, str, int, float]]] = [[], [], [],]
@@ -407,8 +407,8 @@ class GUI:
 
         return [(t[0], t[1], t[2]) for t in tree_data[0] + tree_data[1] + tree_data[2]]
 
-    def _get_fusion_tree_data_new(self, main_line: EvolutionLine, head_fusions: List[EvolutionLine],
-                                  body_fusions: List[EvolutionLine], min_rate: float, sort_mode: int = __SM_RATE) \
+    def _get_fusion_tree_data_new(self, main_line: EvolutionLine, head_fusions: Iterable[EvolutionLine],
+                                  body_fusions: Iterable[EvolutionLine], min_rate: float, sort_mode: int = __SM_RATE) \
             -> List[Tuple[str, str, str]]:
         # this function fuses head and body data by introducing a new "head" and "body" level and wrapping the data
         # correspondingly
