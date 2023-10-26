@@ -1,6 +1,6 @@
 from typing import List, Dict, Optional, Union, Tuple, Set, Iterator
 
-from pkmn_inf_fusion import util, FusionRetriever
+from pkmn_inf_fusion import util, FusionRetriever, FusedMon
 
 
 class _Parser:
@@ -263,6 +263,15 @@ class FusedEvoLine:
     @property
     def existing(self) -> Iterator[Tuple[int, int]]:
         return iter(self.__existing)
+
+    @property
+    def last(self) -> Tuple[int, int]:
+        return self.__existing[-1]
+
+    @property
+    def last_mon(self) -> Optional[FusedMon]:
+        head, body = self.last
+        return FusionRetriever.from_ids(self.__retriever, head, body)
 
     def formatted_string(self, existing: bool = True, missing: bool = True, headline_ids: bool = True,
                          include_rate: bool = False) -> str:

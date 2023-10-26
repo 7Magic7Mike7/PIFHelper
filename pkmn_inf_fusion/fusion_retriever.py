@@ -3,14 +3,50 @@ import os
 from abc import ABC, abstractmethod
 from typing import List, Dict, Union, Optional
 
-from pkmn_inf_fusion import util, Pokemon
+from pkmn_inf_fusion import util, Pokemon, FusedMon
 
 
 class FusionRetriever(ABC):
+    @staticmethod
+    def from_ids(retriever: "FusionRetriever", head: int, body: int) -> Optional[FusedMon]:
+        assert util.is_valid_pkmn(head), f"Head is invalid: {head}"
+        assert util.is_valid_pkmn(body), f"Body is invalid: {body}"
+
+        head_mon = retriever.get_pokemon(head)
+        body_mon = retriever.get_pokemon(body)
+        if head_mon is None or body_mon is None:
+            return None
+        else:
+            return FusedMon(head_mon, body_mon)
+
     @abstractmethod
-    def get_fusions(self, pkmn: int, as_head: bool = True, as_names: bool = True, ) -> \
+    def _get_fusions_internal(self, pkmn: int, as_head: bool = True, as_names: bool = True, ) -> \
             Union[List[int], List[str]]:
         pass
+
+    def get_fusions(self, pkmn: Union[int, List[int]], as_head: bool = True, as_names: bool = True,
+                    force_unique: bool = True) -> Union[List[int], List[str]]:
+        """
+        By default, returns a list containing the names of all pokemon that can be fused with pkmn being the head. If
+        as_head is False pkmn is used as body instead. If as_names is False ids (i.e., pokedex num) are returned instead
+        of names
+
+        :param pkmn: the pokemon of which we want to retrieve fusions or a list of multiple such pokemon
+        :param as_head: whether pkmn is used as head or as body
+        :param as_names: whether to return a list of pokemon names or ids
+        :param force_unique: whether returned Iterable should only contain unique values (i.e., effectively being a set)
+                             or not (i.e., be a list)
+        :return:
+        """
+        if isinstance(pkmn, int):
+            return self._get_fusions_internal(pkmn, as_head, as_names)
+        else:
+            fusions = []
+            for mon in pkmn:
+                fusions += self._get_fusions_internal(mon, as_head, as_names)
+            if force_unique:
+                fusions = list(set(fusions))
+            return fusions
 
     @abstractmethod
     def get_name(self, pkmn: int) -> str:
@@ -47,7 +83,7 @@ class DynamicFusionRetriever(FusionRetriever):
         else:
             self.__names = dex_names
 
-    def get_fusions(self, pkmn: int, as_head: bool = True, as_names: bool = True) -> \
+    def _get_fusions_internal(self, pkmn: int, as_head: bool = True, as_names: bool = True) -> \
             Union[List[int], List[str]]:
         fusions = []
         if as_head:
@@ -123,7 +159,7 @@ class StaticFusionRetriever(FusionRetriever):
                 id_ = int(key)
                 self.__fusions["Body"][id_] = data["Body"][key]
 
-    def get_fusions(self, pkmn: int, as_head: bool = True, as_names: bool = True) -> \
+    def _get_fusions_internal(self, pkmn: int, as_head: bool = True, as_names: bool = True) -> \
             Union[List[int], List[str]]:
         origin = "Head" if as_head else "Body"
 
