@@ -148,7 +148,7 @@ class Pokemon:
 class FusedMon(Pokemon):
     def __init__(self, head: Pokemon, body: Pokemon):
         id_ = head.id * util.max_id() + body.id
-        name = f"?{head.name[:3]}{body.name[3:]}?"  # incorrect but doesn't matter
+        name = head.name + body.name #f"?{head.name[:3]}{body.name[3:]}?"  # incorrect but doesn't matter
 
         hp = int((2 * head.hp + body.hp) / 3)
         spatk = int((2 * head.spatk + body.spatk) / 3)
