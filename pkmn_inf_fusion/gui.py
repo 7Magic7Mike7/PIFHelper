@@ -317,17 +317,20 @@ class GUI:
         remaining = []
         for el in evolution_lines:
             mon = self.__retriever.get_pokemon(el.end_stage)
-            if mon is None:
+            if mon is None or self._filter_mon_by_input(mon):
                 remaining.append(el)
-            elif self.__filter.fulfills_criteria(mon):      # check if stats are above filter values
-                # also check type and ability
-                type_ = self.__type.get()
-                ability = self.__ability.get().strip()
-                # either no type or a present type must have been given (and same for ability)
-                if (len(type_) <= 0 or type_ in [mon.type1, mon.type2]) and \
-                        (len(ability) <= 0 or ability in mon.abilities):
-                    remaining.append(el)
         return remaining
+
+    def _filter_mon_by_input(self, mon: Pokemon) -> bool:
+        if self.__filter.fulfills_criteria(mon):  # check if stats are above filter values
+            # also check type and ability
+            type_ = self.__type.get()
+            ability = self.__ability.get().strip()
+            # either no type or a present type must have been given (and same for ability)
+            if (len(type_) <= 0 or type_ in [mon.type1, mon.type2]) and \
+                    (len(ability) <= 0 or ability in mon.abilities):
+                return True
+        return False
 
     def __analyse(self):
         # validate user input
@@ -340,19 +343,45 @@ class GUI:
         dex_num = self.__retriever.get_id(self.__e_main_mon.get())
         evo_lines = self.__evo_helper.get_evolution_lines(dex_num)
 
-        head_fusions = self.__retriever.get_fusions(dex_num, as_head=True, as_names=False)
-        head_fusions = self.__evo_helper.dex_nums_to_evo_lines(head_fusions)
-        head_fusions = self._filter_by_availability(head_fusions)
-        head_fusions = self._filter_by_input(head_fusions)
-
-        body_fusions = self.__retriever.get_fusions(dex_num, as_head=False, as_names=False)
-        body_fusions = self.__evo_helper.dex_nums_to_evo_lines(body_fusions)
-        body_fusions = self._filter_by_availability(body_fusions)
-        body_fusions = self._filter_by_input(body_fusions)
-
         self.__tree_fusions.insert("", "end", "head", text=f"Head")
         self.__tree_fusions.insert("", "end", "body", text=f"Body")
+        # While it might seem a good idea to calculate head_fusions and body_fusions outside the loop (i.e., base mon is
+        # always the same for each evo_line so its available fusions never change), it would blow up the code and make
+        # it way harder to read while only being more efficient for edge cases (i.e., most pokemon only have a single
+        # evolution line, hence below loop is only executed once). We would also need more transformations from sets to
+        # lists and back to sets (i.e., combine lists of base and evo1 fusions to set and then in loop back to list to
+        # add evo2 fusions and again back to set to have unique values) to it might not even be faster.
         for evo_line in evo_lines:
+            filter_head_flag = True
+
+            def analysis_filter(other_evo_line: EvolutionLine) -> bool:
+                if filter_head_flag:
+                    fused_line = FusedEvoLine(self.__retriever, evo_line, other_evo_line)
+                else:
+                    fused_line = FusedEvoLine(self.__retriever, other_evo_line, evo_line)
+
+                if fused_line.rate < min_rate:
+                    return False
+                return self._filter_mon_by_input(fused_line.last_mon)
+
+            # 1) get all fusions that use evolution line of the main mon as head (i.e., others are bodies)
+            head_fusions = self.__retriever.get_fusions(evo_line.to_list(), as_head=True, as_names=False,
+                                                        force_unique=True)
+            # 2) combine found fusion ids to evolution lines
+            head_fusions = self.__evo_helper.dex_nums_to_evo_lines(head_fusions)
+            # 3) filter evolution lines based on user input of available mons (no filter if no mon provided)
+            head_fusions = self._filter_by_availability(head_fusions)
+            # 4) filter based on non-specific other user input (e.g., stats, type and ability)
+            head_fusions = filter(analysis_filter, head_fusions)
+
+            filter_head_flag = False
+            # now perform the same steps as before but with main mons as bodies (i.e., others are heads)
+            body_fusions = self.__retriever.get_fusions(evo_line.to_list(), as_head=False, as_names=False,
+                                                        force_unique=True)
+            body_fusions = self.__evo_helper.dex_nums_to_evo_lines(body_fusions)
+            body_fusions = self._filter_by_availability(body_fusions)
+            body_fusions = filter(analysis_filter, body_fusions)
+
             for data in self._get_fusion_tree_data_new(evo_line, head_fusions, body_fusions, min_rate):
                 parent_id, item_id, text = data
                 self.__tree_fusions.insert(parent_id, "end", item_id, text=text)
