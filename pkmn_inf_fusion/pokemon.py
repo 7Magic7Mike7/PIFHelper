@@ -7,6 +7,15 @@ from pkmn_inf_fusion import util
 
 class Pokemon:
     @staticmethod
+    def types() -> List[str]:
+        return [
+            "Bug", "Dark", "Dragon", "Electric", "Fairy",
+            "Fighting", "Fire", "Flying", "Ghost", "Grass",
+            "Ground", "Ice", "Normal", "Poison", "Psychic",
+            "Rock", "Steel", "Water",
+        ]
+
+    @staticmethod
     def from_json(data: Dict[str, Any]) -> Optional["Pokemon"]:
         try:
             id_ = int(data["id"])
