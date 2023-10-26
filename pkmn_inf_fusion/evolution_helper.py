@@ -211,8 +211,8 @@ class FusedEvoLine:
         """
 
         :param retriever:
-        :param evo_line1:
-        :param evo_line2:
+        :param evo_line1: head_line if unidirectional is True
+        :param evo_line2: body_line if unidirectional is True
         :param unidirectional: whether evo_line1 can only be the head and evo_line2 only the body or also the other way
                                 around
         """
