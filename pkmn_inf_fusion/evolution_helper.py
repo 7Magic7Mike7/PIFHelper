@@ -27,6 +27,30 @@ class _Parser:
 
 
 class EvolutionLine:
+    @staticmethod
+    def get_pre_split_ids(evo_lines: List["EvolutionLine"]) -> List[int]:
+        if len(evo_lines) < 1: return []
+
+        # check if base is the same pokemon for all evo lines
+        base_mon: int = evo_lines[0].base
+        for evo_line in evo_lines:
+            if base_mon != evo_line.base:
+                return []   # return empty list since not even the base is the same for all provided evo lines
+
+        # check if evo1 is still the same pokemon for all evo lines
+        evo1_mon: int = evo_lines[0].evo1
+        for evo_line in evo_lines:
+            if evo1_mon != evo_line.evo1:
+                return [base_mon]   # only base is the same
+
+        # check if evo2 is still the same pokemon for all evo lines (meaning evo lines would all be identical)
+        evo2_mon: int = evo_lines[0].evo2
+        for evo_line in evo_lines:
+            if evo2_mon != evo_line.evo2:
+                return [base_mon, evo1_mon]
+
+        return [base_mon, evo1_mon, evo2_mon]
+
     def __init__(self, base_pkmn: Union[int, str], evolutions: Union[List[int], str]):
         if isinstance(base_pkmn, str):
             assert util.is_valid_pkmn(base_pkmn), f"Invalid base Pokemon: {base_pkmn}!"
