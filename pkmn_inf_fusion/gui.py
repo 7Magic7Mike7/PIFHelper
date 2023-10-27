@@ -107,7 +107,7 @@ class GUI:
         SPDEF ? -------------              |    ~ FusedLine2 #id %completion |    | SPATK:  123         |
         SPD   ? -------------              |         Fusion1                 |    | SPDEF:  124         |
                                            |         Fusion2                 |    | SPD:    123         |
-        TYPE(s) [____|v] OR/AND [____|v]   |         Fusion3                 |    |                     |
+        TYPE [____|v]                      |         Fusion3                 |    |                     |
         Ability [____|v]                   |                                 |    | Type:    T1  (T2)   |
         Min rate 0 ---------- 100          |+ Body                           |    | Abilities:  [____|v]|
                                            |                                 |    |                     |
