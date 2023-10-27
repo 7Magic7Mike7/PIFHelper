@@ -113,7 +113,8 @@ class GUI:
                                            |                                 |    |                     |
         Only BST > BaseMons [x]            -----------------------------------    -----------------------
                                                                                          {SAVE}
-                {ANALYZE}     {RESET}     {SWAP FUSION}                        {OPEN IMAGE OF SELECTED FUSION}
+                                                                                      {SWAP FUSION}
+                {ANALYZE}     {RESET}                                       {OPEN IMAGE OF SELECTED FUSION}
         """
 
         # title
@@ -186,6 +187,8 @@ class GUI:
             ttk.Label(frm, text=text).grid(column=6, row=detail_row)
             ttk.Label(frm, textvariable=detail_var).grid(column=7, row=detail_row)
             self.__details[name] = detail_var
+        row += 1
+        add_detail("name", "", row)
         add_detail("bst", "BST:   ", row+1)
         add_detail("hp", "HP:    ", row+2)
         add_detail("atk", "ATK:   ", row+3)
@@ -196,12 +199,14 @@ class GUI:
         add_detail("type", "Type:  ", row+8)
         add_detail("abilities", "Abilities: ", row+9)
 
-        ttk.Button(frm, text="Save", command=self.__save_details, width=15).grid(column=6, row=row+11, columnspan=2)
+        row = row+12
+        ttk.Button(frm, text="Save", command=self.__save_details, width=15).grid(column=6, row=row, columnspan=2)
+        ttk.Button(frm, text="Swap", command=self.__swap_fusion, width=15).grid(column=6, row=row+1, columnspan=2)
 
         self.__tree_fusions.bind("<<TreeviewSelect>>", self.__set_details)
 
         # buttons at the bottom
-        row = 16
+        row = 18
         ttk.Button(frm, text="Analyse", command=self.__analyse, width=30).grid(column=0, row=row, columnspan=3)
         ttk.Button(frm, text="Reset", command=self.__reset, width=30).grid(column=4, row=row)
 
@@ -241,6 +246,7 @@ class GUI:
             print(f"Selection error for id: {encoded_id}")
 
         if pokemon is not None:
+            self.__details["name"].set(pokemon.name)
             self.__details["bst"].set(str(pokemon.bst))
             self.__details["hp"].set(str(pokemon.hp))
             self.__details["atk"].set(str(pokemon.atk))
@@ -293,6 +299,33 @@ class GUI:
 
         if text is not None:
             self.__tree_fusions.insert("safe", "end", f"{GUI.__SAFE_PREFIX}{encoded_id}", text=text)
+
+    def __swap_fusion(self):
+        encoded_id = self.__tree_fusions.focus()
+
+        if encoded_id.startswith(GUI.__SAFE_PREFIX):
+            encoded_id = encoded_id[len(GUI.__SAFE_PREFIX):]    # remove safe prefix before swapping
+        try:
+            if "_" in encoded_id:
+                # we selected a concrete fusion
+                data = encoded_id.split("_")  # first part is evolution line, second part is concrete
+
+                swap_id = data[0]
+                # swap prefix "h" with "b"
+                if swap_id.startswith("h"): swap_id = "b" + swap_id[1:]
+                else: swap_id = "h" + swap_id[1:]
+
+                data = data[1].split("-")
+                head_id = data[0]
+                body_id = data[1]
+
+                swap_id += f"_{body_id}-{head_id}"
+                self.__tree_fusions.selection_set(swap_id)
+                self.__tree_fusions.focus(swap_id)
+
+            # else we didn't select a fusion and hence cannot reverse it
+        except:
+            print(f"Selection error for id: {encoded_id}")
 
     def __reset(self, delete_safe: bool = True):
         if self.__tree_is_resettable:
