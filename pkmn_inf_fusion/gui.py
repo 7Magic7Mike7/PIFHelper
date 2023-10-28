@@ -134,8 +134,8 @@ class GUI:
 
         # available pokemon to fuse with main pokemon
         ttk.Label(frm, text="Available Pokemon: ").grid(column=4, row=0)
-        self.__available_mons = ttk.Entry(frm, width=20)
-        self.__available_mons.grid(column=5, row=0, columnspan=1)
+        self.__available_mons = ttk.Entry(frm, width=60)
+        self.__available_mons.grid(column=5, row=0, columnspan=3)
 
         # ROW 1 separator
         ttk.Separator(frm, orient="horizontal").grid(column=0, row=1, columnspan=2)     # todo not working
