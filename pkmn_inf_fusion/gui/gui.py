@@ -205,11 +205,7 @@ class GUI:
         parsed_ids = gui_util.parse_ids_from_tree(encoded_id)
         if parsed_ids is None: return   # no valid pokemon id
 
-        head_id, body_id = parsed_ids
-        if self.__safe.is_saved(parsed_ids):
-            self.__safe.remove(head_id, body_id)
-        else:
-            self.__safe.save(head_id, body_id)
+        self.__safe.invert_state(parsed_ids)
 
     def __swap_fusion(self):
         encoded_id = self.__tree_fusions.focus()
