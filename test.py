@@ -1,3 +1,4 @@
+import json
 import os
 import time
 import unittest
@@ -163,6 +164,28 @@ class MyTestCase(unittest.TestCase):
 
         print("dynamic: ", times["dynamic"])
         print("static:  ", times["static"])
+
+    def test_natural_fusion_lines(self):
+        base_path = MyTestCase.load_default_path()
+        dex_names = os.path.join("data", "dex_names.txt")
+        helper = pif.Helper(base_path, dex_names)
+
+        with open(os.path.join("data", "evolutions.json"), encoding='utf-8') as file:
+            # Load the JSON data
+            data = json.load(file)
+        new_evo_helper = pif.EvolutionHelper.from_json(data)
+        old_evo_helper = pif.EvolutionHelper.from_txt(os.path.join("data", "evolutions.txt"))
+
+        test = [helper.retriever.get_name(id_) for id_ in [81, 82, 263]]
+
+        for id_ in range(util.min_id(), util.max_id()):
+            new_result = [evo_line.to_list() for evo_line in new_evo_helper.get_evolution_lines(id_)]
+            old_result = [evo_line.to_list() for evo_line in old_evo_helper.get_evolution_lines(id_)]
+
+            self.assertEqual(len(new_result), len(old_result), "Found different results!")
+            for i in range(len(new_result)):
+                self.assertSequenceEqual(new_result[i], old_result[i], f"Difference at {i}")
+            debug = True
 
 
 if __name__ == '__main__':

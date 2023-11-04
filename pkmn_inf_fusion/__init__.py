@@ -91,3 +91,63 @@ class Helper:
 
         with open(destination, "wt") as file:
             json.dump(fusions, file, indent=4)
+
+    def refresh_evolutions(self, destination: str, src: Optional[str] = None):
+        if not destination.endswith(".json"):
+            destination = os.path.join(destination, "evolutions.json")
+        if src is None:
+            src = os.path.join("data", "pokedex.json")
+
+        mons = []
+        with open(src, encoding='utf-8') as file:
+            # Load the JSON data
+            data = json.load(file)
+            if isinstance(data, list):
+                # map pokedex-ids to names, so we can map them to pif-ids
+                name_map: Dict[int, str] = {}
+                for item in data:
+                    dex_id = item["id"]
+                    name = item["name"]["english"]
+                    name_map[dex_id] = name
+
+                def dex2pif(dex_id_: int) -> int:
+                    name_ = name_map[dex_id_]
+                    return self.retriever.get_id(name_)
+
+                for item in data:
+                    pif_id = dex2pif(item["id"])
+                    if util.is_valid_pkmn(pif_id):
+                        evo_obj = item["evolution"]
+                        if "prev" in evo_obj:
+                            evo_id = int(evo_obj["prev"][0])
+                            evo_method = evo_obj["prev"][1]
+
+                            # find out if it evolves by level and if yes, at which level
+                            if evo_method.startswith("Level"):
+                                lvl_start = 0
+                                for i in range(len("Level"), len(evo_method)):
+                                    if evo_method[i].isdigit():
+                                        lvl_start = i
+                                        break
+
+                                lvl_end = len(evo_method)
+                                for i in range(lvl_start, len(evo_method)):
+                                    if not evo_method[i].isdigit():
+                                        lvl_end = i
+                                        break
+
+                                evo_level = int(evo_method[lvl_start:lvl_end])
+                            else:
+                                # it evolves by something different than level, hence it can evolve immediately
+                                evo_level = 0
+
+                            mons.append({
+                                "id": pif_id,
+                                "pre-evolution": {
+                                    "id": dex2pif(evo_id),
+                                    "level": evo_level
+                                }
+                            })
+
+        with open(destination, "wt") as file:
+            json.dump(mons, file, indent=4)
