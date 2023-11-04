@@ -29,6 +29,10 @@ def max_id() -> int:
     return 420
 
 
+def max_lvl() -> int:
+    return 100
+
+
 def is_valid_pkmn(pkmn: Union[str, int]) -> bool:
     if isinstance(pkmn, str):
         if pkmn.isdigit():

@@ -1,4 +1,3 @@
-import json
 import os
 import time
 import unittest
@@ -165,27 +164,55 @@ class MyTestCase(unittest.TestCase):
         print("dynamic: ", times["dynamic"])
         print("static:  ", times["static"])
 
-    def test_natural_fusion_lines(self):
-        base_path = MyTestCase.load_default_path()
-        dex_names = os.path.join("data", "dex_names.txt")
-        helper = pif.Helper(base_path, dex_names)
-
-        with open(os.path.join("data", "evolutions.json"), encoding='utf-8') as file:
-            # Load the JSON data
-            data = json.load(file)
-        new_evo_helper = pif.EvolutionHelper.from_json(data)
+    def test_new_evo_helper(self):
+        new_evo_helper = pif.EvolutionHelper.from_json(os.path.join("data", "evolutions.json"))
         old_evo_helper = pif.EvolutionHelper.from_txt(os.path.join("data", "evolutions.txt"))
-
-        test = [helper.retriever.get_name(id_) for id_ in [81, 82, 263]]
 
         for id_ in range(util.min_id(), util.max_id()):
             new_result = [evo_line.to_list() for evo_line in new_evo_helper.get_evolution_lines(id_)]
             old_result = [evo_line.to_list() for evo_line in old_evo_helper.get_evolution_lines(id_)]
 
+            # sort the results because for split lines the order might differ
+            new_result.sort()
+            old_result.sort()
+
             self.assertEqual(len(new_result), len(old_result), "Found different results!")
             for i in range(len(new_result)):
-                self.assertSequenceEqual(new_result[i], old_result[i], f"Difference at {i}")
-            debug = True
+                self.assertSequenceEqual(new_result[i], old_result[i], f"Difference at {i} for {id_}")
+
+    def test_natural_fusion_lines(self):
+        base_path = MyTestCase.load_default_path()
+        dex_names = os.path.join("data", "dex_names.txt")
+        helper = pif.Helper(base_path, dex_names)
+        evo_helper = pif.EvolutionHelper.from_json(os.path.join("data", "evolutions.json"))
+
+        line1 = evo_helper.get_evolution_lines(helper.retriever.get_id("Lapras"))[0]        # [133]
+        line2 = evo_helper.get_evolution_lines(helper.retriever.get_id("Spearow"))[0]       # [21, 22]
+        line3 = evo_helper.get_evolution_lines(helper.retriever.get_id("Charmander"))[0]    # [4, 5, 6]
+
+        self.assertSequenceEqual(line1.to_leveled_list(), [
+            (helper.retriever.get_id("Lapras"), None),
+        ], "Invalid for Lapras!")
+
+        self.assertSequenceEqual(line2.to_leveled_list(), [
+            (helper.retriever.get_id("Spearow"), 20),
+            (helper.retriever.get_id("Fearow"), None),
+        ], "Invalid for Spearow!")
+
+        self.assertSequenceEqual(line3.to_leveled_list(), [
+            (helper.retriever.get_id("Charmander"), 16),
+            (helper.retriever.get_id("Charmeleon"), 36),
+            (helper.retriever.get_id("Charizard"), None),
+        ], "Invalid for Spearow!")
+
+        fel = pif.FusedEvoLine(helper.retriever, line1, line2, unidirectional=True)
+        self.assertSequenceEqual(list(fel.naturals), [(131, 21), (131, 22)])
+
+        fel = pif.FusedEvoLine(helper.retriever, line3, line1, unidirectional=True)
+        self.assertSequenceEqual(list(fel.naturals), [(4, 131), (5, 131), (6, 131)])
+
+        fel = pif.FusedEvoLine(helper.retriever, line3, line2, unidirectional=True)
+        self.assertSequenceEqual(list(fel.naturals), [(4, 21), (5, 21), (5, 22), (6, 22)])
 
 
 if __name__ == '__main__':

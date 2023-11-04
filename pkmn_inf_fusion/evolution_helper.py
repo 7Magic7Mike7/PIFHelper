@@ -1,3 +1,4 @@
+import json
 from typing import List, Dict, Optional, Union, Tuple, Set, Iterator, Iterable, Any
 
 from pkmn_inf_fusion import util, FusionRetriever, FusedMon
@@ -148,8 +149,7 @@ class EvolutionLine:
         """
 
         lvl1 = None if self.lvl1 is None else self.lvl1
-        # don't use 0 because some end-stages evolve with stones and therefore can occur naturally as soon as evo1's lvl
-        lvl2 = lvl1 if self.lvl2 is None else self.lvl2
+        lvl2 = None if self.lvl2 is None else self.lvl2
 
         list_ = [(self.base, lvl1)]
         if self.evo1 is not None:
@@ -160,12 +160,18 @@ class EvolutionLine:
 
     def natural_at_level(self, level: int) -> List[int]:
         leveled_list = self.to_leveled_list()
-        i = 0
-        while i < len(leveled_list):
-            mon, lvl = leveled_list[i]
-            i += 1
-            if lvl is None or level > lvl:
-                break
+
+        if level is None:
+            # level is None because we want to consider "unlimited level", aka end stage
+            i = len(leveled_list)
+        else:
+            i = 0
+            while i < len(leveled_list):
+                mon, lvl = leveled_list[i]
+                i += 1
+                if lvl is None or lvl > level:
+                    break
+        i -= 1
         # i is now either at the last mon that can naturally be at the given level or at the end of leveled_list
         # (meaning that the end stage is the last mon that can naturally be at the given level)
 
@@ -269,8 +275,12 @@ class EvolutionHelper:
         return EvolutionHelper(evolutions)
 
     @staticmethod
-    def from_json(data: List[Dict[str, Any]]) -> "EvolutionHelper":
+    def from_json(path: str) -> "EvolutionHelper":
         evolutions: Dict[Optional[int], List[EvolutionLine]] = {}
+
+        with open(path, encoding='utf-8') as file:
+            # Load the JSON data
+            data = json.load(file)
 
         evolution_data: Dict[int, Dict] = {}
         for item in data:
@@ -397,66 +407,31 @@ class FusedEvoLine:
         self.__existing = existing
         self.__missing = missing
 
+        naturals = []   # (lvl, mon1, mon2)
+        # find out which pokemon of line2 can occur at the evolution levels of line1 (simulating line1 evolving)
+        for mon1, lvl1 in evo_line1.to_leveled_list():
+            for mon2 in evo_line2.natural_at_level(lvl1):
+                if lvl1 is None: lvl1 = util.max_lvl()
+                naturals.append((lvl1, mon1, mon2))
 
-        def test(line1: EvolutionLine, line2: EvolutionLine):
-            naturals: List[Tuple[int, int, int]] = []   # (lvl, mon1, mon2)
-            # find out which pokemon of line2 can occur at the evolution levels of line1 (simulating line1 evolving)
-            for mon1, lvl1 in line1.to_leveled_list():
-                for mon2 in line2.natural_at_level(lvl1):
-                    naturals.append((lvl1, mon1, mon2))
+        # do the same in the other direction (simulating line2 evolving)
+        for mon2, lvl2 in evo_line2.to_leveled_list():
+            for mon1 in evo_line1.natural_at_level(lvl2):
+                if lvl2 is None: lvl2 = util.max_lvl()
+                naturals.append((lvl2, mon1, mon2))
 
-            # do the same in the other direction (simulating line2 evolving)
-            for mon2, lvl2 in line2.to_leveled_list():
-                for mon1 in line1.natural_at_level(lvl2):
-                    naturals.append((lvl2, mon1, mon2))
+        # todo check if this could easily be avoided (maybe only end-stages can be duplicated or they are always duplicated?)
+        naturals = list(set([(mon1, mon2) for _, mon1, mon2 in naturals]))  # remove the duplicates that can occur
+        naturals.sort()     # sort by level (needs to be done after set()-operation!)
 
-            naturals.sort()     # sort by level
-            natural_fusions = [(mon1, mon2) for _, mon1, mon2 in naturals]
-
-            nat_set = list(set(natural_fusions))
-            if len(nat_set) != len(natural_fusions):
-                debug = True
-
-            return natural_fusions
-
-        def check_natural_progression(line1: EvolutionLine, line2: EvolutionLine):
-            # fusions that can occur naturally (e.g., Charmander + Venusaur is no natural progression)
-            naturals: List[Tuple[int, int]] = []
-
-            ll1 = line1.to_leveled_list()
-            ll2 = line2.to_leveled_list()
-            i1, i2 = 0, 0
-            level1, level2 = 0, 0
-            level_up_flag = True
-            new_addition = True
-            while True:
-                mon1, evo_level1 = ll1[i1]
-                mon2, evo_level2 = ll2[i2]
-                if new_addition:
-                    naturals.append((mon1, mon2))
-                    new_addition = False
-
-                if evo_level1 is None and evo_level2 is None:
-                    break
-
-                if level_up_flag:
-                    level1 += 1
-                    if evo_level1 is not None and level1 == evo_level1:
-                        i1 += 1
-                        new_addition = True
-                else:
-                    level2 += 1
-                    if evo_level2 is not None and level2 == evo_level2:
-                        i2 += 1
-                        new_addition = True
-
-                level_up_flag = not level_up_flag
-
-            return naturals
-
-        self.__naturals = test(evo_line1, evo_line2)
         if not unidirectional:
-            self.__naturals += test(evo_line2, evo_line1)
+            self.__naturals = []
+            for val in naturals:
+                mon1, mon2 = val
+                self.__naturals.append((mon1, mon2))
+                self.__naturals.append((mon2, mon1))
+        else:
+            self.__naturals: List[Tuple[int, int]] = naturals
 
     @property
     def rate(self) -> float:
