@@ -1,6 +1,6 @@
 import json
 
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 from pkmn_inf_fusion import util
 
@@ -146,8 +146,27 @@ class Pokemon:
 
 
 class FusedMon(Pokemon):
+    @staticmethod
+    def calculate_id(head: int, body: int) -> int:
+        return head * util.max_id() + body
+
+    @staticmethod
+    def ids_from_fusion(fusion: int) -> Optional[Tuple[int, int]]:
+        """
+
+        :param fusion: id of the fusion we want to know the head and body of
+        :return: None for invalid ids, else (head_id, body_id)
+        """
+        # minimal id: head_id = 1, body_id = 1 -> fusion_id = 1 * max_id + 1
+        # maximal id: head_id = max_id, body_id = max_id -> fusion_id = max_id * max_id + max_id
+        if fusion <= util.max_id() or fusion > util.max_id() * util.max_id() + util.max_id():
+            return None  # invalid id
+        head_id = int(fusion / util.max_id())
+        body_id = fusion % util.max_id()
+        return head_id, body_id
+
     def __init__(self, head: Pokemon, body: Pokemon):
-        id_ = head.id * util.max_id() + body.id
+        id_ = FusedMon.calculate_id(head.id, body.id)
         name = head.name + body.name #f"?{head.name[:3]}{body.name[3:]}?"  # incorrect but doesn't matter
 
         hp = int((2 * head.hp + body.hp) / 3)

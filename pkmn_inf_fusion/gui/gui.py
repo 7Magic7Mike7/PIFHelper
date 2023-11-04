@@ -3,11 +3,11 @@ from tkinter import ttk, Tk, IntVar, StringVar, DoubleVar
 from typing import List, Tuple, Set, Optional, Dict, Iterable
 
 from pkmn_inf_fusion import EvolutionHelper, FusionRetriever, EvolutionLine, FusedEvoLine, util, Pokemon, FusedMon
+from pkmn_inf_fusion.gui import Filter, Safe, gui_util
 
 
 class GUI:
     __MON_SPLITER = ";"
-    __SAFE_PREFIX = "safe_"
     __DEFAULT_RATE = 50
     __SM_NAME = 0
     __SM_RATE = 1
@@ -105,6 +105,9 @@ class GUI:
         self.__tree_fusions = ttk.Treeview(frm, columns="fusions")
         self.__tree_fusions.grid(column=4, row=row+1, columnspan=2, rowspan=10)
         self.__tree_fusions.insert("", "end", "safe", text="Safe")
+        self.__safe = Safe(self.__retriever,
+                           insert=lambda id_, text: self.__tree_fusions.insert("safe", "end", id_, text=text),
+                           delete=self.__tree_fusions.delete, reset_details=self.__reset_details)
 
         # Pokemon details section
         row = 2
@@ -129,7 +132,8 @@ class GUI:
         add_detail("abilities", "Abilities: ", row+9)
 
         row = row+12
-        ttk.Button(frm, text="Save", command=self.__save_details, width=15).grid(column=6, row=row, columnspan=2)
+        self.__b_save = ttk.Button(frm, text="Save", command=self.__save_details, width=15)
+        self.__b_save.grid(column=6, row=row, columnspan=2)
         ttk.Button(frm, text="Swap", command=self.__swap_fusion, width=15).grid(column=6, row=row+1, columnspan=2)
 
         self.__tree_fusions.bind("<<TreeviewSelect>>", self.__set_details)
@@ -147,32 +151,14 @@ class GUI:
 
     def __set_details(self, event):
         encoded_id = self.__tree_fusions.focus()
-        pokemon = None
-        if encoded_id.startswith(GUI.__SAFE_PREFIX):
-            encoded_id = encoded_id[len(GUI.__SAFE_PREFIX):]    # remove safe prefix
-        try:
-            if "_" in encoded_id:
-                # we selected a concrete fusion
-                data = encoded_id.split("_")[1]  # first part is evolution line, second part is concrete
-                data = data.split("-")
-                head_id = int(data[0])
-                body_id = int(data[1])
-                pokemon = FusedMon(self.__retriever.get_pokemon(head_id), self.__retriever.get_pokemon(body_id))
-            elif "-" in encoded_id:
-                # we selected a fusion line -> showcase base mon since the concrete fusion can be seen by expanding
-                # skip prefix ("h" or "b") indicating for this case irrelevant fusion position
-                data = encoded_id[1:].split("-")  # split ids separated by "-"
-                mon_id = int(data[1])
-                pokemon = self.__retriever.get_pokemon(mon_id)
-            elif encoded_id in ["head", "body", "safe"]:
-                pass  # nothing to do
-            else:
-                # we selected a single pokemon
-                # skip prefix ("h" or "b") indicating for this case irrelevant fusion position
-                mon_id = int(encoded_id[1:])
-                pokemon = self.__retriever.get_pokemon(mon_id)
-        except:
-            print(f"Selection error for id: {encoded_id}")
+        parsed_ids = gui_util.parse_ids_from_tree(encoded_id)
+        if parsed_ids is None: return   # no valid pokemon id
+
+        head_id, body_id = parsed_ids
+        if body_id is None:
+            pokemon = self.__retriever.get_pokemon(head_id)
+        else:
+            pokemon = FusionRetriever.from_ids(self.__retriever, head_id, body_id)
 
         if pokemon is not None:
             self.__details["name"].set(pokemon.name)
@@ -193,49 +179,70 @@ class GUI:
                 ab_str += f"{ability}, "
             self.__details["abilities"].set(ab_str[:-2])    # remove trailing ", "
 
+            # set the text of the button correspondingly
+            if self.__safe.is_saved(parsed_ids):
+                self.__b_save.configure(text="Remove")
+            else:
+                self.__b_save.configure(text="Save")
+
+    def __reset_details(self):
+        self.__details["name"].set("?")
+        self.__details["bst"].set("")
+        self.__details["hp"].set("")
+        self.__details["atk"].set("")
+        self.__details["spatk"].set("")
+        self.__details["def"].set("")
+        self.__details["spdef"].set("")
+        self.__details["spd"].set("")
+
+        self.__details["type"].set("")
+        self.__details["abilities"].set("")
+
     def __save_details(self):
         if not self.__tree_is_resettable: return    # this means there are no head or body fusions
 
         encoded_id = self.__tree_fusions.focus()
-        if encoded_id.startswith(GUI.__SAFE_PREFIX): return     # don't save again
+        parsed_ids = gui_util.parse_ids_from_tree(encoded_id)
+        if parsed_ids is None: return   # no valid pokemon id
 
-        text = None
-        try:
-            if "_" in encoded_id:
-                # we selected a concrete fusion
-                data = encoded_id.split("_")[1]  # first part is evolution line, second part is concrete
-                data = data.split("-")
-                head_id = int(data[0])
-                body_id = int(data[1])
-                pokemon = FusedMon(self.__retriever.get_pokemon(head_id), self.__retriever.get_pokemon(body_id))
-
-                text = pokemon.name
-            elif "-" in encoded_id:
-                # we selected a fusion line -> showcase base mon since the concrete fusion can be seen by expanding
-                # skip prefix ("h" or "b") indicating for this case irrelevant fusion position
-                data = encoded_id[1:].split("-")  # split ids separated by "-"
-                mon_id = int(data[1])
-                text = self.__retriever.get_name(mon_id)
-            elif encoded_id in ["head", "body", "safe"]:
-                pass  # nothing to do
-            else:
-                # we selected a single pokemon
-                # skip prefix ("h" or "b") indicating for this case irrelevant fusion position
-                mon_id = int(encoded_id[1:])
-                text = self.__retriever.get_name(mon_id)
-        except:
-            print(f"Selection error for id: {encoded_id}")
-
-        if text is not None:
-            self.__tree_fusions.insert("safe", "end", f"{GUI.__SAFE_PREFIX}{encoded_id}", text=text)
+        self.__safe.invert_state(parsed_ids)
 
     def __swap_fusion(self):
         encoded_id = self.__tree_fusions.focus()
+        parsed_ids = gui_util.parse_ids_from_tree(encoded_id)
+        if parsed_ids is None: return  # no valid pokemon id
 
-        if encoded_id.startswith(GUI.__SAFE_PREFIX):
-            encoded_id = encoded_id[len(GUI.__SAFE_PREFIX):]    # remove safe prefix before swapping
-        try:
-            if "_" in encoded_id:
+        head_id, body_id = parsed_ids
+
+        if encoded_id.startswith(gui_util.safe_prefix()):
+            # if head_id is an end-stage, head_lines only has 1 element but else we can still ignore all but the first
+            # element since the fusions of pre-line-split mons are present in all evolution lines
+            # e.g.: consider the fusion Eevee + Charmander
+            # get_evolution_lines(eevee) returns [Eevee, Vaporeon], [Eevee, Jolteon], ...
+            # the fusion Eevee + Charmander is present in the evolution line fusion Vaporeon + Charizard, Jolteon +
+            # Charizard, ...
+            # therefore, we can simply look at Vaporen fusions (first element in list) and don't have to consider
+            # Jolteon fusions etc.
+            # similar if we consider fusion Jolteon + Charmander:
+            # get_evolution_lines(jolteon) only returns [Eevee, Jolteon] -> we only have one element to consider
+            # therefore, we can simply look at the first element of the list again
+            end_head_id = self.__evo_helper.get_evolution_lines(head_id)[0].end_stage
+
+            # same logic as described above
+            end_body_id = self.__evo_helper.get_evolution_lines(body_id)[0].end_stage
+
+            # there are four different possibilities of the original id present in tree_fusions
+            swap1 = f"h{end_head_id}-{end_body_id}_{body_id}-{head_id}"
+            swap2 = f"b{end_head_id}-{end_body_id}_{body_id}-{head_id}"
+            swap3 = f"h{end_body_id}-{end_head_id}_{body_id}-{head_id}"
+            swap4 = f"b{end_body_id}-{end_head_id}_{body_id}-{head_id}"
+            for swap_id in [swap1, swap2, swap3, swap4]:
+                if self.__tree_fusions.exists(swap_id):
+                    self.__tree_fusions.selection_set(swap_id)
+                    self.__tree_fusions.focus(swap_id)
+
+        else:
+            if "_" in encoded_id and body_id is not None:
                 # we selected a concrete fusion
                 data = encoded_id.split("_")  # first part is evolution line, second part is concrete
 
@@ -244,17 +251,11 @@ class GUI:
                 if swap_id.startswith("h"): swap_id = "b" + swap_id[1:]
                 else: swap_id = "h" + swap_id[1:]
 
-                data = data[1].split("-")
-                head_id = data[0]
-                body_id = data[1]
-
                 swap_id += f"_{body_id}-{head_id}"
                 self.__tree_fusions.selection_set(swap_id)
                 self.__tree_fusions.focus(swap_id)
 
             # else we didn't select a fusion and hence cannot reverse it
-        except:
-            print(f"Selection error for id: {encoded_id}")
 
     def __reset(self, delete_safe: bool = True):
         if self.__tree_is_resettable:
