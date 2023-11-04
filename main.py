@@ -157,7 +157,12 @@ def console_info2(helper: pif.Helper, evo_helper: pif.EvolutionHelper, main_mon:
 
 if __name__ == '__main__':
     USE_GUI = True
-    base_path_ = argv[1]
+
+    if len(argv) <= 1:
+        with open(os.path.join("data", "default_path")) as file:
+            base_path_ = file.readline()
+    else:
+        base_path_ = argv[1]
 
     helper_ = pif.Helper(base_path_, os.path.join("data", "dex_names.txt"))
     evo_helper_ = pif.EvolutionHelper(os.path.join("data", "evolutions.txt"))
