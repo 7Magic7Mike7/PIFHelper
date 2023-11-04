@@ -209,11 +209,40 @@ class GUI:
 
     def __swap_fusion(self):
         encoded_id = self.__tree_fusions.focus()
+        parsed_ids = gui_util.parse_ids_from_tree(encoded_id)
+        if parsed_ids is None: return  # no valid pokemon id
+
+        head_id, body_id = parsed_ids
 
         if encoded_id.startswith(gui_util.safe_prefix()):
-            encoded_id = encoded_id[len(gui_util.safe_prefix()):]    # remove safe prefix before swapping
-        try:
-            if "_" in encoded_id:
+            # if head_id is an end-stage, head_lines only has 1 element but else we can still ignore all but the first
+            # element since the fusions of pre-line-split mons are present in all evolution lines
+            # e.g.: consider the fusion Eevee + Charmander
+            # get_evolution_lines(eevee) returns [Eevee, Vaporeon], [Eevee, Jolteon], ...
+            # the fusion Eevee + Charmander is present in the evolution line fusion Vaporeon + Charizard, Jolteon +
+            # Charizard, ...
+            # therefore, we can simply look at Vaporen fusions (first element in list) and don't have to consider
+            # Jolteon fusions etc.
+            # similar if we consider fusion Jolteon + Charmander:
+            # get_evolution_lines(jolteon) only returns [Eevee, Jolteon] -> we only have one element to consider
+            # therefore, we can simply look at the first element of the list again
+            end_head_id = self.__evo_helper.get_evolution_lines(head_id)[0].end_stage
+
+            # same logic as described above
+            end_body_id = self.__evo_helper.get_evolution_lines(body_id)[0].end_stage
+
+            # there are four different possibilities of the original id present in tree_fusions
+            swap1 = f"h{end_head_id}-{end_body_id}_{body_id}-{head_id}"
+            swap2 = f"b{end_head_id}-{end_body_id}_{body_id}-{head_id}"
+            swap3 = f"h{end_body_id}-{end_head_id}_{body_id}-{head_id}"
+            swap4 = f"b{end_body_id}-{end_head_id}_{body_id}-{head_id}"
+            for swap_id in [swap1, swap2, swap3, swap4]:
+                if self.__tree_fusions.exists(swap_id):
+                    self.__tree_fusions.selection_set(swap_id)
+                    self.__tree_fusions.focus(swap_id)
+
+        else:
+            if "_" in encoded_id and body_id is not None:
                 # we selected a concrete fusion
                 data = encoded_id.split("_")  # first part is evolution line, second part is concrete
 
@@ -222,17 +251,11 @@ class GUI:
                 if swap_id.startswith("h"): swap_id = "b" + swap_id[1:]
                 else: swap_id = "h" + swap_id[1:]
 
-                data = data[1].split("-")
-                head_id = data[0]
-                body_id = data[1]
-
                 swap_id += f"_{body_id}-{head_id}"
                 self.__tree_fusions.selection_set(swap_id)
                 self.__tree_fusions.focus(swap_id)
 
             # else we didn't select a fusion and hence cannot reverse it
-        except:
-            print(f"Selection error for id: {encoded_id}")
 
     def __reset(self, delete_safe: bool = True):
         if self.__tree_is_resettable:
