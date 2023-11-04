@@ -173,8 +173,9 @@ class EvolutionHelper:
                     break
         return filtered_lines
 
-    def __init__(self, evolutions_file: str):
-        self.__evolutions: Dict[Optional[int], List[EvolutionLine]] = {}
+    @staticmethod
+    def from_txt(evolutions_file: str) -> "EvolutionHelper":
+        evolutions: Dict[Optional[int], List[EvolutionLine]] = {}
 
         def store_evolution(line: str):
             line = line.replace(" ", "")    # remove whitespace
@@ -190,16 +191,20 @@ class EvolutionHelper:
                 for evo_line in evo_lines:
                     # store the evolution line for each pokemon in it (still works if evo1 or evo2 are None)
                     evo1, evo2 = evo_line.evo1, evo_line.evo2
-                    self.__evolutions[base] = evo_lines
-                    self.__evolutions[evo1] = evo_lines
-                    self.__evolutions[evo2] = evo_lines
+                    evolutions[base] = evo_lines
+                    evolutions[evo1] = evo_lines
+                    evolutions[evo2] = evo_lines
             else:
                 # single stage pokemon
                 assert util.is_valid_pkmn(line), f"Invalid base Pokemon: {line}!"
                 evo_line = EvolutionLine(line, [])
-                self.__evolutions[evo_line.base] = [evo_line]
+                evolutions[evo_line.base] = [evo_line]
 
         util.analyze_data_file(evolutions_file, store_evolution)
+        return EvolutionHelper(evolutions)
+
+    def __init__(self, evolutions: Dict[Optional[int], List[EvolutionLine]]):
+        self.__evolutions: Dict[Optional[int], List[EvolutionLine]] = evolutions
 
     def get_evolution_lines(self, dex_num: int, exclude_parallels: bool = True) -> List[EvolutionLine]:
         """

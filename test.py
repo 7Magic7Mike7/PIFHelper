@@ -23,7 +23,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_evolution_file(self):
         evo_file = os.path.join("data", "evolutions.txt")
-        evo_helper = pif.EvolutionHelper(evo_file)
+        evo_helper = pif.EvolutionHelper.from_txt(evo_file)
 
         for dex_num in range(pif.util.min_id(), pif.util.max_id() + 1):
             if dex_num == 107:
@@ -58,7 +58,7 @@ class MyTestCase(unittest.TestCase):
         helper = pif.Helper(base_path, dex_names)
 
         evo_file = os.path.join("data", "evolutions.txt")
-        evo_helper = pif.EvolutionHelper(evo_file)
+        evo_helper = pif.EvolutionHelper.from_txt(evo_file)
 
         id_ = helper.retriever.get_id("Eevee")
         evo_lines = evo_helper.get_evolution_lines(id_)
@@ -75,7 +75,7 @@ class MyTestCase(unittest.TestCase):
         helper = pif.Helper(base_path, dex_names)
 
         evo_file = os.path.join("data", "evolutions.txt")
-        evo_helper = pif.EvolutionHelper(evo_file)
+        evo_helper = pif.EvolutionHelper.from_txt(evo_file)
 
         dex_nums = [1, 2, 3, 4, 6]
         reduced_evo_lines = evo_helper.dex_nums_to_evo_lines(dex_nums)

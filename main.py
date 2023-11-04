@@ -165,7 +165,7 @@ if __name__ == '__main__':
         base_path_ = argv[1]
 
     helper_ = pif.Helper(base_path_, os.path.join("data", "dex_names.txt"))
-    evo_helper_ = pif.EvolutionHelper(os.path.join("data", "evolutions.txt"))
+    evo_helper_ = pif.EvolutionHelper.from_txt(os.path.join("data", "evolutions.txt"))
 
     main_mon_ = "Eevee"
     available_mons_ = [
