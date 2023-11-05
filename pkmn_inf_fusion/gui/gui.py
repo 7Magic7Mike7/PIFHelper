@@ -103,6 +103,10 @@ class GUI:
         self.__natural_check = IntVar(value=1)
         ttk.Checkbutton(frm, onvalue=1, offvalue=0, variable=self.__natural_check).grid(column=1, row=row+1)
 
+        ttk.Label(frm, text="End stage?").grid(column=0, row=row+2)
+        self.__require_end_stage = IntVar(value=1)
+        ttk.Checkbutton(frm, onvalue=1, offvalue=0, variable=self.__require_end_stage).grid(column=1, row=row+2)
+
         # Result section
         row = 2
         ttk.Label(frm, text="Results: ").grid(column=4, row=row)
@@ -326,6 +330,10 @@ class GUI:
                     fused_line = FusedEvoLine(self.__retriever, evo_line, other_evo_line)
                 else:
                     fused_line = FusedEvoLine(self.__retriever, other_evo_line, evo_line)
+
+                # check if the final fusion stage is present if the corresponding checkbox is ticked
+                if self.__require_end_stage.get() == 1 and not fused_line.has_final:
+                    return False
 
                 # use natural_rate or rate for comparison based on checkbox
                 line_rate = fused_line.natural_rate if self.__natural_check.get() == 1 else fused_line.rate
