@@ -1,7 +1,7 @@
 import os
 import time
 import unittest
-from typing import Dict
+from typing import Dict, List, Tuple
 
 import pkmn_inf_fusion as pif
 from pkmn_inf_fusion import Pokemon, util
@@ -186,33 +186,33 @@ class MyTestCase(unittest.TestCase):
         helper = pif.Helper(base_path, dex_names)
         evo_helper = pif.EvolutionHelper.from_json(os.path.join("data", "evolutions.json"))
 
-        line1 = evo_helper.get_evolution_lines(helper.retriever.get_id("Lapras"))[0]        # [133]
-        line2 = evo_helper.get_evolution_lines(helper.retriever.get_id("Spearow"))[0]       # [21, 22]
-        line3 = evo_helper.get_evolution_lines(helper.retriever.get_id("Charmander"))[0]    # [4, 5, 6]
-
+        # test simple 1-, 2- and 3-stage lines
+        line1 = evo_helper.get_evolution_lines(helper.retriever.get_id("Lapras"))[0]        # [131]
         self.assertSequenceEqual(line1.to_leveled_list(), [
             (helper.retriever.get_id("Lapras"), None),
         ], "Invalid for Lapras!")
 
+        line2 = evo_helper.get_evolution_lines(helper.retriever.get_id("Spearow"))[0]       # [21, 22]
         self.assertSequenceEqual(line2.to_leveled_list(), [
             (helper.retriever.get_id("Spearow"), 20),
             (helper.retriever.get_id("Fearow"), None),
         ], "Invalid for Spearow!")
 
+        line3 = evo_helper.get_evolution_lines(helper.retriever.get_id("Charmander"))[0]    # [4, 5, 6]
         self.assertSequenceEqual(line3.to_leveled_list(), [
             (helper.retriever.get_id("Charmander"), 16),
             (helper.retriever.get_id("Charmeleon"), 36),
             (helper.retriever.get_id("Charizard"), None),
         ], "Invalid for Spearow!")
 
-        fel = pif.FusedEvoLine(helper.retriever, line1, line2, unidirectional=True)
-        self.assertSequenceEqual(list(fel.naturals), [(131, 21), (131, 22)])
+        def test_natural_fusion_line(line_a: pif.EvolutionLine, line_b: pif.EvolutionLine,
+                                     correct_list: List[Tuple[int, int]]):
+            fel = pif.FusedEvoLine(helper.retriever, line_a, line_b, unidirectional=True)
+            self.assertSequenceEqual(list(fel.naturals), correct_list)
 
-        fel = pif.FusedEvoLine(helper.retriever, line3, line1, unidirectional=True)
-        self.assertSequenceEqual(list(fel.naturals), [(4, 131), (5, 131), (6, 131)])
-
-        fel = pif.FusedEvoLine(helper.retriever, line3, line2, unidirectional=True)
-        self.assertSequenceEqual(list(fel.naturals), [(4, 21), (5, 21), (5, 22), (6, 22)])
+        test_natural_fusion_line(line1, line2, [(131, 21), (131, 22)])
+        test_natural_fusion_line(line3, line1, [(4, 131), (5, 131), (6, 131)])
+        test_natural_fusion_line(line3, line2, [(4, 21), (5, 21), (5, 22), (6, 22)])
 
 
 if __name__ == '__main__':
