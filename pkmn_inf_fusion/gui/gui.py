@@ -99,6 +99,10 @@ class GUI:
         self.__e_rate.grid(column=1, row=row)
         self.__e_rate.insert(0, f"{GUI.__DEFAULT_RATE}")    # todo validate input?
 
+        ttk.Label(frm, text="Naturals?").grid(column=0, row=row+1)
+        self.__natural_check = IntVar(value=1)
+        ttk.Checkbutton(frm, onvalue=1, offvalue=0, variable=self.__natural_check).grid(column=1, row=row+1)
+
         # Result section
         row = 2
         ttk.Label(frm, text="Results: ").grid(column=4, row=row)
@@ -323,7 +327,9 @@ class GUI:
                 else:
                     fused_line = FusedEvoLine(self.__retriever, other_evo_line, evo_line)
 
-                if fused_line.rate < min_rate:
+                # use natural_rate or rate for comparison based on checkbox
+                line_rate = fused_line.natural_rate if self.__natural_check.get() == 1 else fused_line.rate
+                if line_rate < min_rate:
                     return False
                 return self._filter_mon_by_input(fused_line.last_mon)
 
@@ -375,7 +381,12 @@ class GUI:
                                  f"#{other_line.end_stage}\t[{100 * fusion_line.rate:.0f}%]",
                                  other_line.end_stage, fusion_line.rate))
 
-            for i, fusion in enumerate(fusion_line.existing):
+            if self.__natural_check.get() == 1:
+                fusion_iterator = fusion_line.naturals(include_missing=False)
+            else:
+                fusion_iterator = fusion_line.existing
+
+            for i, fusion in enumerate(fusion_iterator):
                 head_mon, body_mon = fusion
                 dex_num = body_mon if are_head_fusions else head_mon    # dex of the other pokemon for sorting
                 head_name = self.__retriever.get_name(head_mon)

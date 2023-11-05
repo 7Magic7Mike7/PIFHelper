@@ -139,48 +139,65 @@ class EvolutionLine:
             list_.append(self.evo2)
         return list_
 
-    def to_leveled_list(self) -> List[Tuple[int, Optional[int]]]:
+    def to_leveled_list(self, as_max_lvl: bool) -> List[Tuple[int, Optional[int]]]:
         """
-        Returns a list of tuples describing at what a pokemon in the evolution line evolves. A pokemon that doesn't
-        evolve is indicated by None.
-        E.g.: the Charizard-line would return [(4, 16), (5, 36), (6, None)]
+        Returns a list of tuples either describing at what level a pokemon in the evolution line *will evolve* or when
+        it *has evolved*.
+
+        E.g.: the Charizard-line would return
+                - as_max_lvl=True:    [(4, 16), (5, 36), (6, None)]
+
+                - as_max_lvl=False:   [(4, 0), (5, 16), (6, 36)]
+
+
+        :param as_max_lvl: whether to get a list of the max levels (= level when they evolve) or min levels (= level
+                            where they evolve*d*)
 
         :return: list of (id, evolution level)
         """
 
         lvl1 = None if self.lvl1 is None else self.lvl1
         lvl2 = None if self.lvl2 is None else self.lvl2
+        # adapt lvl2 if it's a stone evolution because it cannot exist before the first evolution at lvl1
+        if lvl2 == 0: lvl2 = lvl1
 
-        list_ = [(self.base, lvl1)]
+        list_ = [(self.base, lvl1 if as_max_lvl else 0)]
         if self.evo1 is not None:
-            list_.append((self.evo1, lvl2))
+            list_.append((self.evo1, lvl2 if as_max_lvl else lvl1))
         if self.evo2 is not None:
-            list_.append((self.evo2, None))     # there is no end
+            list_.append((self.evo2, None if as_max_lvl else lvl2))     # there is no end
         return list_
 
-    def natural_at_level(self, level: int) -> List[int]:
-        leveled_list = self.to_leveled_list()
+    def natural_at_level(self, level: int, consider_equal_levels: bool = True) -> List[int]:
+        """
+
+        :param level: the level we simulate the evolution line to be in
+        :param consider_equal_levels: whether we want to consider the state *at* level or *after* level
+        :return:
+        """
+        max_leveled_list = self.to_leveled_list(as_max_lvl=True)
 
         if level is None:
             # level is None because we want to consider "unlimited level", aka end stage
-            i = len(leveled_list)
+            i = len(max_leveled_list)
         else:
             i = 0
-            while i < len(leveled_list):
-                mon, lvl = leveled_list[i]
+            while i < len(max_leveled_list):
+                mon, lvl = max_leveled_list[i]
                 i += 1
-                if lvl is None or lvl > level:
+                if lvl is None or lvl > level or (consider_equal_levels and lvl == level):
                     break
         i -= 1
         # i is now either at the last mon that can naturally be at the given level or at the end of leveled_list
         # (meaning that the end stage is the last mon that can naturally be at the given level)
 
-        ret_val = [leveled_list[i][0]]  # add the last mon
-        # now check if previous mons can occur at the same level (i.e., don't evolve by level up into the last mon)
-        for j in range(i-1, -1, -1):
-            if leveled_list[j][1] == leveled_list[i][1]:    # todo check None-cases?
-                ret_val.append(leveled_list[j][0])
-        ret_val.reverse()   # reverse the list so we have an ascending order
+        min_leveled_list = self.to_leveled_list(as_max_lvl=False)
+        ret_val = []
+        lvl_compare = min_leveled_list[i][1]
+        for j in range(len(min_leveled_list)):
+            if min_leveled_list[j][1] == lvl_compare:
+                ret_val.append(min_leveled_list[j][0])
+
         return ret_val
 
     def __contains__(self, item):
@@ -409,14 +426,14 @@ class FusedEvoLine:
 
         naturals = []   # (lvl, mon1, mon2)
         # find out which pokemon of line2 can occur at the evolution levels of line1 (simulating line1 evolving)
-        for mon1, lvl1 in evo_line1.to_leveled_list():
+        for mon1, lvl1 in evo_line1.to_leveled_list(as_max_lvl=False):
             for mon2 in evo_line2.natural_at_level(lvl1):
                 if lvl1 is None: lvl1 = util.max_lvl()
                 naturals.append((lvl1, mon1, mon2))
 
         # do the same in the other direction (simulating line2 evolving)
-        for mon2, lvl2 in evo_line2.to_leveled_list():
-            for mon1 in evo_line1.natural_at_level(lvl2):
+        for mon2, lvl2 in evo_line2.to_leveled_list(as_max_lvl=False):
+            for mon1 in evo_line1.natural_at_level(lvl2, consider_equal_levels=False):
                 if lvl2 is None: lvl2 = util.max_lvl()
                 naturals.append((lvl2, mon1, mon2))
 
@@ -425,17 +442,31 @@ class FusedEvoLine:
         naturals.sort()     # sort by level (needs to be done after set()-operation!)
 
         if not unidirectional:
-            self.__naturals = []
+            all_naturals = []
             for val in naturals:
                 mon1, mon2 = val
-                self.__naturals.append((mon1, mon2))
-                self.__naturals.append((mon2, mon1))
+                all_naturals.append((mon1, mon2))
+                all_naturals.append((mon2, mon1))
         else:
-            self.__naturals: List[Tuple[int, int]] = naturals
+            all_naturals: List[Tuple[int, int]] = naturals
+
+        existing_nats = []
+        missing_nats = []
+        for fusion in all_naturals:
+            if fusion in self.__existing:
+                existing_nats.append(fusion)
+            else:
+                missing_nats.append(fusion)
+        self.__existing_nats = existing_nats
+        self.__missing_nats = missing_nats
 
     @property
     def rate(self) -> float:
         return len(self.__existing) / (len(self.__existing) + len(self.__missing))
+
+    @property
+    def natural_rate(self) -> float:
+        return len(self.__existing_nats) / (len(self.__existing_nats) + len(self.__missing_nats))
 
     @property
     def has_final(self) -> bool:
@@ -460,10 +491,6 @@ class FusedEvoLine:
         return iter(self.__existing)
 
     @property
-    def naturals(self) -> Iterator[Tuple[int, int]]:
-        return iter(self.__naturals)
-
-    @property
     def last(self) -> Tuple[int, int]:
         return self.__existing[-1]
 
@@ -471,6 +498,15 @@ class FusedEvoLine:
     def last_mon(self) -> Optional[FusedMon]:
         head, body = self.last
         return FusionRetriever.from_ids(self.__retriever, head, body)
+
+    def naturals(self, include_missing: bool = False) -> Iterator[Tuple[int, int]]:
+        if include_missing:
+            # we have to sort because existing and missing are only sorted among themselves
+            sorted_nats = self.__existing_nats + self.__missing_nats
+            sorted_nats.sort()
+            return iter(sorted_nats)
+        else:
+            return iter(self.__existing_nats)
 
     def formatted_string(self, existing: bool = True, missing: bool = True, headline_ids: bool = True,
                          include_rate: bool = False) -> str:

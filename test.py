@@ -188,18 +188,18 @@ class MyTestCase(unittest.TestCase):
 
         # test simple 1-, 2- and 3-stage lines
         line1 = evo_helper.get_evolution_lines(helper.retriever.get_id("Lapras"))[0]        # [131]
-        self.assertSequenceEqual(line1.to_leveled_list(), [
+        self.assertSequenceEqual(line1.to_leveled_list(True), [
             (helper.retriever.get_id("Lapras"), None),
         ], "Invalid for Lapras!")
 
         line2 = evo_helper.get_evolution_lines(helper.retriever.get_id("Spearow"))[0]       # [21, 22]
-        self.assertSequenceEqual(line2.to_leveled_list(), [
+        self.assertSequenceEqual(line2.to_leveled_list(True), [
             (helper.retriever.get_id("Spearow"), 20),
             (helper.retriever.get_id("Fearow"), None),
         ], "Invalid for Spearow!")
 
         line3 = evo_helper.get_evolution_lines(helper.retriever.get_id("Charmander"))[0]    # [4, 5, 6]
-        self.assertSequenceEqual(line3.to_leveled_list(), [
+        self.assertSequenceEqual(line3.to_leveled_list(True), [
             (helper.retriever.get_id("Charmander"), 16),
             (helper.retriever.get_id("Charmeleon"), 36),
             (helper.retriever.get_id("Charizard"), None),
@@ -207,12 +207,38 @@ class MyTestCase(unittest.TestCase):
 
         def test_natural_fusion_line(line_a: pif.EvolutionLine, line_b: pif.EvolutionLine,
                                      correct_list: List[Tuple[int, int]]):
+            # don't filter for this test since we want to test the logic regardless of existing fusion data
             fel = pif.FusedEvoLine(helper.retriever, line_a, line_b, unidirectional=True)
-            self.assertSequenceEqual(list(fel.naturals), correct_list)
+            nat_list = list(fel.naturals(include_missing=True))
+            self.assertSequenceEqual(nat_list, correct_list)
 
         test_natural_fusion_line(line1, line2, [(131, 21), (131, 22)])
         test_natural_fusion_line(line3, line1, [(4, 131), (5, 131), (6, 131)])
         test_natural_fusion_line(line3, line2, [(4, 21), (5, 21), (5, 22), (6, 22)])
+
+        # test direct stone evolution
+        line4 = evo_helper.get_evolution_lines(helper.retriever.get_id("Vaporeon"))[0]        # [133, 134]
+        self.assertSequenceEqual(line4.to_leveled_list(True), [
+            (helper.retriever.get_id("Eevee"), 0),
+            (helper.retriever.get_id("Vaporeon"), None),
+        ], "Invalid for Vaporeon!")
+
+        test_natural_fusion_line(line4, line1, [(133, 131), (134, 131)])
+        test_natural_fusion_line(line4, line2, [(133, 21), (133, 22), (134, 21), (134, 22)])
+        test_natural_fusion_line(line3, line4, [(4, 133), (4, 134), (5, 133), (5, 134), (6, 133), (6, 134)])
+
+        # test level evolution followed by stone evolution
+        line5 = evo_helper.get_evolution_lines(helper.retriever.get_id("Nidoking"))[0]      # [32, 33, 34]
+        self.assertSequenceEqual(line5.to_leveled_list(True), [
+            (helper.retriever.get_id("NidoranM"), 16),
+            (helper.retriever.get_id("Nidorino"), 16),
+            (helper.retriever.get_id("Nidoking"), None),
+        ], "Invalid for Nidoking!")
+
+        test_natural_fusion_line(line1, line5, [(131, 32), (131, 33), (131, 34)])
+        test_natural_fusion_line(line2, line5, [(21, 32), (21, 33), (21, 34), (22, 33), (22, 34)])
+        test_natural_fusion_line(line3, line5, [(4, 32), (5, 32), (5, 33), (5, 34), (6, 33), (6, 34)])
+        test_natural_fusion_line(line4, line5, [(133, 32), (133, 33), (133, 34), (134, 32), (134, 33), (134, 34)])
 
 
 if __name__ == '__main__':
